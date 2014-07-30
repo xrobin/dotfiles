@@ -29,5 +29,3 @@ if [ `uname` == Darwin ]; then
 	alias TextMate='open -a TextMate.app'
 fi
 
-# make faster
-export MAKEFLAGS="-j 4"
