@@ -8,9 +8,6 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-# don't put duplicate lines in the history. See bash(1) for more options
-#export HISTCONTROL=ignoredups
-
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
@@ -61,8 +58,8 @@ esac
 if [ "$TERM" != "dumb" ]; then
     eval "`dircolors -b`"
     alias ls='ls --color=auto'
-    alias dir='ls --color=auto --format=vertical'
-    alias vdir='ls --color=auto --format=long'
+#    alias dir='ls --color=auto --format=vertical'
+#    alias vdir='ls --color=auto --format=long'
 fi
 
 
