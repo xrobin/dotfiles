@@ -41,6 +41,7 @@ fi
 #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\u@\h\[\033[0;37m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] '
 PS1='${debian_chroot:+($debian_chroot)}\[\033[1;34m\]\u\[\033[0;37m\]@\[\033[01;34m\]\h\[\033[0;37m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] '
 
+# Change the prompt color when logged on an other machine
 if [[ "$SSH_CONNECTION" != "" ]]
 then
 	PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u\[\033[01;30m\]@\[\033[01;35m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
@@ -115,13 +116,21 @@ export CLICOLORS=1
 if [ -f ~/.aliases ]; then 
 	. ~/.aliases 
 fi
-source .aliases
+
+# Source additional local files
+if test -n "$(shopt -s nullglob; echo ~/.bashrc.*)"
+then
+	for f in ~/.bashrc.*; do
+	       . $f
+	done
+fi
 
 # Stuff found at http://teaching.idallen.com/cst8207/13w/notes/350_startup_files.html#no-output-allowed-for-non-interactive-shells
-shopt -s failglob
-set -o ignoreeof
-set -o noclobber
-set -o notify
-set -o nounset
-set -o physical
-set -o interactive-comments
+#shopt -s failglob # Note: disabled because it inteferes with shopt -s nullglob used above and with bash completion
+#set -o ignoreeof
+#set -o noclobber
+#set -o notify
+#set -o nounset
+#set -o physical
+#set -o interactive-comments
+
