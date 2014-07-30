@@ -1,5 +1,11 @@
 # Enable completions from /opt/local with macports
-
+# sudo port install bash-completion
 if [ -f /opt/local/etc/profile.d/bash_completion.sh ]; then
 	. /opt/local/etc/profile.d/bash_completion.sh
+fi
+
+# Enable lesspipe
+# sudo port install lesspipe
+if [ -f /opt/local/bin/lesspipe.sh ]; then
+	export LESSOPEN='| /opt/local/bin/lesspipe.sh %s'
 fi
