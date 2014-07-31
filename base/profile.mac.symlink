@@ -1,15 +1,16 @@
 # For an explanation of .bashrc, .bash_profile and .profile, see http://superuser.com/questions/789448/choosing-between-bashrc-profile-bash-profile-etc
 # In short: environment variables go to .profile, all shell-specific stuff in .bashrc.
 
+if [ `uname` == Darwin ]; then
+	export PATH=/opt/local/libexec/gnubin/:/opt/local/bin:/opt/local/sbin:$PATH
+	export PYTHONPATH=$PYTHONPATH:/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/
+	launchctl setenv R_LIBS_USER $R_LIBS_USER # Must be available to RStudio
 
-export PATH=/opt/local/libexec/gnubin/:/opt/local/bin:/opt/local/sbin:$PATH
-export PYTHONPATH=$PYTHONPATH:/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/
-launchctl setenv R_LIBS_USER $R_LIBS_USER # Must be available to RStudio
-
-#export MOZ_NO_REMOTE=1
-#export PERL5LIB="/home/xavier/Master/stage_MIAPE/MIAPE/lib:/home/xavier/Master/stage_MIAPE/MIAPE/perl/lib"
+	#export MOZ_NO_REMOTE=1
+	#export PERL5LIB="/home/xavier/Master/stage_MIAPE/MIAPE/lib:/home/xavier/Master/stage_MIAPE/MIAPE/perl/lib"
 
 
-# Fix locale on Mac:
-export LC_CTYPE=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
+	# Fix locale on Mac:
+	export LC_CTYPE=en_US.UTF-8
+	export LC_ALL=en_US.UTF-8
+fi
