@@ -1,2 +1,4 @@
 *~
 .DS_Store
+# Remove Eclipse (not-so-)temp files:
+._*
