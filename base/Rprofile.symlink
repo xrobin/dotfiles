@@ -1,0 +1,161 @@
+#if (R.version$minor > 11) {
+# Do all this only for R latest. Use default for R 2.10!
+# look for packages in ~/R/lib!
+
+# Include local .Rprofiles:
+local({
+	local.files <- list.files(path = "~", pattern = ".Rprofile\\.(local|linux|unix|mac.?)", all.files=TRUE, full.names = TRUE)
+	invisible(sapply(local.files, source))
+})
+
+#.libPaths("~/R/library")
+# print(.libPaths())
+#
+if (interactive()) {
+
+
+	# Things you might want to change
+
+	# options(papersize="a4")
+	# options(editor="notepad")
+	# options(pager="internal")
+
+	# options("pROCProgress"=list(name="tk")
+	# note: tk tends to block emacs, so use text instead
+	#options("pROCProgress"=list(
+	#	name="text",
+	#	style=3,
+	#	char="=",
+	#	width=80))
+
+	# to prefer Compiled HTML help
+	#  options(chmhelp=TRUE)
+	
+	# to prefer HTML help
+	# options(htmlhelp=TRUE)
+	
+	# .Library.site <- file.path(chartr("\\", "/", R.home()), "site-library")
+	
+	# Attach the packages earlier than defaults, so that what we load later has the priority!
+	options("defaultPackages" = c(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo")))
+#	invisible(sapply(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo"), require, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE))
+	#invisible(sapply(c(getOption("defaultPackages"), "tools", "fortunes", "Cairo"), require, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE))
+	
+	#invisible(sapply(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo"), require, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE, save = FALSE))
+	
+	# attach MesDocs/R/functions.R in a new environment called UserFunctions
+	.UserFunctionsEnv <- attach(NULL, name="UserFunctions")
+	sys.source("/Users/xavier/R/functions.R", env=.UserFunctionsEnv, keep.source=TRUE)
+	
+	# also attach PanelomiX
+	#.PanelomiXEnv <- attach(NULL, name="PanelomiX")
+	#sys.source("/home/xavier/PanelomiX/panelomiX.R", env=.PanelomiXEnv, keep.source=TRUE)
+	
+	# set a CRAN mirror
+	local({r <- getOption("repos")
+	      r["CRAN"] <- "http://mirrors.dotsrc.org/cran/"
+	      r["r.forge"] <- "http://r-forge.r-project.org"
+	      options(repos=r)})
+	
+	#q <- function(save="no",status = 0, runLast = TRUE)
+	#	.Internal(quit(save, status, runLast))
+	
+	# do not print too many lines at once
+	options("max.print" = 1000)
+	# Do not show the tcl/tk menu to select CRAN mirror
+	options("menu.graphics" = FALSE)
+	# Do not continue execution in browser() after a blank line
+	options("browserNLdisabled" = TRUE)
+	
+	# setup printers
+	#options(printer="HP LaserJet 2300 Series PS (NB 9036)")
+	options(color.printer="Canon-iR-ADV-C5045")
+	options(printers=system("lpstat -a|grep -o '^[^ ]\\+'", intern=T))
+	#options(device=function(...) {
+	#	if (length(system("ps -ef|grep compiz", TRUE)) == 4)
+	#		CairoX11(...)
+	#	else 
+	#		X11(...)
+	#})
+	
+	# Java parameter: prevents unwanted exiting upon Control-C (see https://www.rforge.net/bugzilla/show_bug.cgi?id=237)
+	options(java.parameters="-Xrs")
+	
+	if (require(Cairo)) {
+		CairoFonts(
+			regular="Fontin Sans Rg:style=Regular",
+			bold="Fontin Sans Rg:style=Bold",
+			italic="Fontin Sans Rg:style=Italic",
+			bolditalic="Fontin Sans Rg:style=Bold Italic,BoldItalic",
+			symbol="Symbol"
+		)
+	}
+	
+	
+	# custom colors
+	options(colors=list(
+		ruby_dark = "#850000",
+		emerald_dark = "#008500",
+		sapphire_dark = "#003c85",
+		amethyst_dark = "#570085",
+		orange_dark = "#855600",
+		citrine_dark = "#855e00",
+		ruby = "#b51b1b",
+		emerald = "#1bb51b",
+		sapphire = "#1b60b5",
+		amethyst = "#811bb5",
+		citrine = "#b5871b",
+		ruby_bg = "#f2e6e6",
+		emerald_bg = "#e6f2e6",
+		sapphire_bg = "#e6ecf2",
+		amethyst_bg = "#eee6f2",
+		citrine_bg = "#f2efe6"
+	#	sapphire_bg = rgb(219, 233, 229, maxColorValue=255),
+	#	emerald_bg = rgb(224, 234, 224, maxColorValue=255),
+	#	ruby_bg = rgb(239, 229, 229, maxColorValue=255)
+	))
+	
+	# Use UTF-8 as default encoding.
+	#options("encoding"="UTF-8") # this messes the reading of many files!!!
+	
+	# Fonts Fontin et Fertigo
+	#windowsFonts(Fontin = windowsFont("TT Fontin Sans Rg"),
+	#             Fertigo = windowsFont("TT Fertigo Pro"),
+	#             Calluna = windowsFont("TT Calluna"),
+	#             CallunaSans = windowsFont("TT Calluna Sans"))
+	             
+	# Help
+	options(help.ports=c(42042))
+	#dynamicHelpStarted <- startDynamicHelp()
+	#if (dynamicHelpStarted < 0) {
+	#	cat("The dynamic help server did not start\u2026 It may be in a bad mood. It gave the following answer instead: ", dynamicHelpStarted, ".\n", sep="")
+	#} else if (dynamicHelpStarted == 42042) {
+		#	cat("The dynamic help server may have answered to the Ultimate Question.\n")
+	#} else {
+	#	cat("The dynamic help server surprisingly started on port ", tools:::httpdPort, ".\n", sep="")
+	#}
+	#rm(dynamicHelpStarted)
+	#options("help_server"=paste("http://127.0.0.1:", 42042, sep=""))
+	#options("help_server"="http://seti.unige.ch/RHelp")
+	#options("help_server"="file:///c:/PROGRA~1/R")
+	
+	# fortunes
+	library(fortunes)
+	print(fortune())
+	
+	# nicer errors
+	options(error=stack.trace) # stack.trace is a function in "UserFunctions" env (see MesDocs/R/functions.R).
+	
+	# Don't import table with strings converted as factor – most of the time it's wrong!!
+	options(stringsAsFactors = FALSE)
+	# look for a startup file in the current directory
+	if (file.exists(".First.R")) {
+	  source(".First.R")
+	  cat("[Profil local exécuté]\n")
+	}
+#} else {
+#	# Do it as well in non interactive mode (needed for easyprot)
+#	#.libPaths("~/R/lib")
+#}
+#
+}
