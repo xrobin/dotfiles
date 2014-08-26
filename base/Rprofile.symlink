@@ -45,7 +45,7 @@ if (interactive()) {
 	
 	# attach MesDocs/R/functions.R in a new environment called UserFunctions
 	.UserFunctionsEnv <- attach(NULL, name="UserFunctions")
-	sys.source("/Users/xavier/R/functions.R", env=.UserFunctionsEnv, keep.source=TRUE)
+	sys.source("R/functions.R", env=.UserFunctionsEnv, keep.source=TRUE)
 	
 	# also attach PanelomiX
 	#.PanelomiXEnv <- attach(NULL, name="PanelomiX")
