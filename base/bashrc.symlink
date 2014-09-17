@@ -111,7 +111,12 @@ fi
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
 # par exemple si on tappes tar, seul les fichiers tar seront complétés...
-if [ -f /etc/bash_completion ]; then
+if [[ $BASH =~ /bin/bash$ ]]; then
+	prefix=${BASH:0:-9}
+fi
+if [ -f $prefix/bash_completion ]; then
+    . $prefix/bash_completion
+elif [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
 fi
 
