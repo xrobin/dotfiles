@@ -57,13 +57,16 @@ esac
 # enable color support of ls and also add handy aliases
 if [ "$TERM" != "dumb" ]; then
 	if ls --color -d . >/dev/null 2>&1; then
-		if [ hash dircolors 2>/dev/null ]; then
+		# We have a GNU ls
+		if hash dircolors 2>/dev/null ; then
+			# Dircolors is present
 			eval "`dircolors -b`"
 			alias ls='ls --color=auto'
 #    alias dir='ls --color=auto --format=vertical'
 #    alias vdir='ls --color=auto --format=long'
 		fi
 	elif ls -G -d . >/dev/null 2>&1; then
+		# We have a BSD ls
 		alias ls='ls -G'
 	fi 
 fi
