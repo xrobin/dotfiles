@@ -71,7 +71,7 @@ if [ "$TERM" != "dumb" ]; then
 	fi 
 fi
 
-if [ `locale language` == "French" ]; then
+if [ "`locale language 2>/dev/null`" == "French" ]; then
 	echo ""
 	echo "Bienvenue Maître vénéré $USER !"
 	echo "Dieu de tous les Dieux !"
