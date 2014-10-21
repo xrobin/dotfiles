@@ -38,3 +38,4 @@
 	default = simple
 [http]
 	sslCAInfo = /Users/xavier/.code.lindinglab.org.pem
+	sslVerify = true

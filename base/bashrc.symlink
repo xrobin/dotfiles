@@ -71,12 +71,13 @@ if [ "$TERM" != "dumb" ]; then
 	fi 
 fi
 
-
-echo ""
-echo "Bienvenue Maître vénéré $USER !"
-echo "Dieu de tous les Dieux !"
-echo "Soyez productif durant cette journée !"
-echo ""
+if [ `locale language` == "French" ]; then
+	echo ""
+	echo "Bienvenue Maître vénéré $USER !"
+	echo "Dieu de tous les Dieux !"
+	echo "Soyez productif durant cette journée !"
+	echo ""
+fi
 
 # ne pas historiser cd, ls, bg, fg et clear
 export HISTIGNORE="cd:ls:[bf]g:clear"

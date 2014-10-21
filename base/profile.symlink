@@ -15,3 +15,6 @@ if [ -f ~/.profile.mac ]; then
 	. ~/.profile.mac
 fi
 
+if [ -f ~/.profile.local ]; then 
+	. ~/.profile.local
+fi
