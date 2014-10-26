@@ -43,9 +43,10 @@ if (interactive()) {
 	
 	#invisible(sapply(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo"), require, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE, save = FALSE))
 	
-	# attach MesDocs/R/functions.R in a new environment called UserFunctions
-	.UserFunctionsEnv <- attach(NULL, name="UserFunctions")
-	sys.source("R/functions.R", env=.UserFunctionsEnv, keep.source=TRUE)
+	# attach R/functions.R in a new environment called UserFunctions
+	#.UserFunctionsEnv <- attach(NULL, name="UserFunctions")
+	#sys.source("~/R/functions.R", env=.UserFunctionsEnv, keep.source=TRUE)
+	sys.source("~/.Rfunctions.R", env=attach(NULL, name="UserFunctions"), keep.source=TRUE)
 	
 	# also attach PanelomiX
 	#.PanelomiXEnv <- attach(NULL, name="PanelomiX")
