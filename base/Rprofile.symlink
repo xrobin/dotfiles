@@ -50,8 +50,9 @@ if (interactive()) {
 	      r["r.forge"] <- "http://r-forge.r-project.org"
 	      options(repos=r)})
 	
-	#q <- function(save="no",status = 0, runLast = TRUE)
-	#	.Internal(quit(save, status, runLast))
+	# Don't ask to save workspace on quit...
+	q <- function(save="no", ...)
+		base::quit(save, ...)
 	
 	# do not print too many lines at once
 	options("max.print" = 1000)
