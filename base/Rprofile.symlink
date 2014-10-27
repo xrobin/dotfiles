@@ -38,18 +38,11 @@ if (interactive()) {
 	
 	# Attach the packages earlier than defaults, so that what we load later has the priority!
 	options("defaultPackages" = c(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo")))
-#	invisible(sapply(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo"), require, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE))
-	#invisible(sapply(c(getOption("defaultPackages"), "tools", "fortunes", "Cairo"), require, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE))
 	
-	#invisible(sapply(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo"), require, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE, save = FALSE))
-	
-	# attach MesDocs/R/functions.R in a new environment called UserFunctions
-	.UserFunctionsEnv <- attach(NULL, name="UserFunctions")
-	sys.source("R/functions.R", env=.UserFunctionsEnv, keep.source=TRUE)
-	
-	# also attach PanelomiX
-	#.PanelomiXEnv <- attach(NULL, name="PanelomiX")
-	#sys.source("/home/xavier/PanelomiX/panelomiX.R", env=.PanelomiXEnv, keep.source=TRUE)
+	# attach R/functions.R in a new environment called UserFunctions
+	#.UserFunctionsEnv <- attach(NULL, name="UserFunctions")
+	#sys.source("~/R/functions.R", env=.UserFunctionsEnv, keep.source=TRUE)
+	sys.source("~/.Rfunctions.R", env=attach(NULL, name="UserFunctions"), keep.source=TRUE)
 	
 	# set a CRAN mirror
 	local({r <- getOption("repos")
