@@ -1,0 +1,687 @@
+# CALL: source("c:/Documents and Settings/ROBINX/Mes documents/R/functions.R")
+#   sys.source("c:/Documents and Settings/ROBINX/Mes documents/R/functions.R", envir=.UserFunctionsEnv, keep.source=TRUE); reattach(.UserFunctionsEnv)
+#   save(list=ls(envir=.UserFunctionsEnv), file="functions.RData")
+#   load("functions.RData", envir=.UserFunctionsEnv)
+
+reattach = function(x) {
+  # detach and attach the given value again. 'x' can be given as name (e.g reattach(mylist)) or as character (e.g reattach("mylist"))
+  # Refresh values of attached elements with the original dataset
+  if (is.character(x)) {
+    where <- grep(x, search())
+    detach(pos=where)
+    attach(get(x, pos=parent.frame()), name=x)
+  }
+  else if (is.environment(x)) {
+    detach(attr(x, "name"), character.only=TRUE)
+    attach(x, name=attr(x, "name"))
+  }
+  else {
+    name <- as.character(match.call()$x)
+    where <- grep(name, search())
+    detach(pos=where)
+    attach(x, name=name)
+  }
+}
+
+# Formats p-values with significance info
+format.pval2 <- function(x, ...) {
+  xf <- sapply(x, function(x, ...) {
+    if (x <= 0.001)
+      xf <- paste(format.pval(x, ...), "***", sep="")
+    else if (x <= 0.01)
+      xf <- paste(format.pval(x, ...), "**", sep="")
+    else if (x <= 0.05)
+      xf <- paste(format.pval(x, ...), "*", sep="")
+    else 
+      xf <- (paste(format.pval(x, ...), "(NS)"))
+  }, ...)
+}
+
+
+insert <- function(quoi, dansquoi, ou) {
+# Insert a value in a vector
+# Arguments : 
+# 1. Value to insert
+# 2. Vector in which to insert it
+# 3. Position in which to insert the new value
+# Return value : the vector with the new value
+# Example :
+#    x <- 1:10
+#    insert(5.5, x, 6)
+  i <- seq(along=x)
+  c(dansquoi[ou>i], quoi, dansquoi[ou<=i])
+}
+
+decile <- function(x) {
+	pvec <- seq(0, 1, 0.1)
+	quantile(x, pvec)
+}
+
+n.combinations <- function (n, k) {
+	factorial(n)/(factorial(k)*factorial(n-k))
+}
+
+is.between <- function(x, min, max, equal=c(TRUE, TRUE)) {
+  # Is x comprised between min and max?
+  # arguments:
+  #   x: the numeric vector of arbitrary length to test
+  #   min: a numeric value, minimum of interval
+  #   max: a numeric value, maximum of interval
+  #   equal: a logical vector: should exact equality be treated as TRUE or FALSE, for min and max respectively. If only one is provided, will be used for both min and max. Longer vectors will be trimmed to length 2.
+  # return value: a logical vector of the same length than x
+  equal <- rep(equal, length.out=2)
+  if (equal[1])
+    low <- min <= x
+  else
+    low <- min < x
+  if (equal[2])
+    high <- x <= max
+  else
+    high <- x < max
+  return(low&high)
+}
+
+"%between%" <- function(x, interval) {
+  # x %between% intervaly
+  # return: logical: are the values of x comprised in the range defined by interval?
+  # example: c(1, 3, 6) %between% 1:5
+  # [1]  TRUE  TRUE FALSE
+  # see also: is.between for more complicated way of doing essentially the same thing but allowing to define if borders are included or not
+  return(x >= min(interval) & x <= max(interval))
+}
+
+
+# Used as "panel" argument to the "pairs" function. Not intended to be run directly.
+panel.lm <- function(x, y, ...) {
+  l <- lm(y~x)
+  c <- cor.test(x, y, method="pearson")
+  text(grconvertX(0.01,"npc"), grconvertY(.99,"npc"), substitute(y == a*x+b, list(a=sprintf("%.2f", l$coeff[2]), b=sprintf("%.2f", l$coeff[1]))), adj=c(0, 1))
+  text(grconvertX(0.99,"npc"), grconvertY(.01,"npc"), substitute(rho == r ~~ (p == pval), list(r=sprintf("%.2f", c$estimate), pval=sprintf("%.3f", c$p.value))), adj=c(1, 0))
+  points(x, y, ...)
+  abline(l)
+}
+
+
+# Used as "diag.panel" argument to the "pairs" function. Not intended to be run directly.
+panel.hist <- function(x, ...)
+{
+    usr <- par("usr"); on.exit(par(usr))
+    par(usr = c(usr[1:2], 0, 1.5) )
+    h <- hist(x, plot=F, ...)
+    breaks <- h$breaks; nB <- length(breaks)
+    y <- h$counts; y <- y/max(y)
+    rect(breaks[-nB], 0, breaks[-1], y, ...)
+}
+
+# Returns a list with all combinations of
+combn.all <- function(x, ...) {
+  # x: a vector (numeric, character, ...)
+  ret <- list()
+  for (i in 1:length(x)) {
+    c <- combn(x, i, ...)
+    for (j in 1:dim(c)[2]) {
+      ret[[length(ret)+1]] <- c[,j]
+    }
+  }
+  return(ret)
+}
+# Example:
+# molecules <- c("ndka", "hfabp", "gstp")
+# panels <- combn.all(molecules)
+# for (panel in panels) {
+#   do.someting(panel)
+# }
+
+predict.list <- function(x, statistics=mean, ...) {
+  # x: a list of models with a defined predict function (svm, lm, ...)
+  # statistics: function to apply to the predictions for each patient (default: mean)
+  # ...: additional arguments for the underlying predict functions (particularly: newdata)
+  apply(as.data.frame(lapply(x, predict, ...)), 1, statistics)
+}
+# Example:
+# myList <- list()
+# for (panel in panels) {
+#   formula <- as.formula(paste("outcome ~", paste(panel, collapse="+")))
+#   myList[[length(myList)+1]] <- lm(formula, data=train)
+# }
+# predict(myList)
+
+
+defined <- function(x) {
+  if (! exists(as.character(match.call()$x), parent.frame()))
+    return(c(exists=FALSE))
+  if (length(x) == 0)
+    return(c(empty=FALSE))
+  if (length(x) == 1) {
+    if (is.null(x))
+      return(c(not.null=FALSE))
+    if (is.na(x))
+      return(c(not.na=FALSE))
+    if (is.nan(x))
+      return(c(not.nan=FALSE))
+    if (x == "")
+      return(c(empty.string=FALSE))
+  }
+  else {
+    # threre are > 1 value: assume it is defined
+  }
+  return(TRUE)
+}
+
+has.na <- function(x) # does the vector x contain any missing value?
+  UseMethod("has.na")
+
+has.na.default <- function(x)
+  any(is.na(x))
+
+has.na.data.frame <- function(x)
+  apply(x, 1, has.na)
+
+
+# Plot superposed histogram of data according to diff
+diff.hist <- function(data, diff, levels=base::levels(as.factor(diff)), col=1:length(levels), breaks=20, xlab=deparse(substitute(data)), main=paste("Histogram of", xlab), ...) {
+  # Prepare limits
+  h <- hist(data, plot=F, breaks=breaks, ...)
+  new.breaks <- h$breaks
+  max.counts <- 0
+  for (level in levels) {
+    hl <- hist(data[diff==level], plot=F, breaks=new.breaks, ...)
+    max.counts <- max(max.counts, hl$counts)
+  }
+  # Do the plotting
+  add <- FALSE
+  for (i in 1:length(levels)) {
+    hist(data[diff==levels[i]], breaks=new.breaks, col=col[i], ylim=c(0,max.counts), add=add, xlab=xlab, main=main, ...)
+    add <- TRUE
+  }
+  for (i in (length(levels)-1):1) {
+    hist(data[diff==levels[i]], col=col[i], add=T, breaks=new.breaks, ..., density=100/length(levels), border=1)
+  }
+}
+#diff.hist(barcelona.cs$gstp, barcelona.cs$diagnosis, levels=c("controls", "stroke"), col=c("green", "red"))
+#diff.hist(barcelona$gstp, barcelona$diagnosis, levels=levels(barcelona$diagnosis))
+
+multhist <- function(..., col=2:8, breaks="Sturges") {
+  if (is.null(names(list(...))))
+    data <- list(...)
+  else
+    data <- list(...)[names(list(...))==""] # keep only unnamed args in data
+  col <- rep(col, length.out=length(data))
+  h1 <- hist(unlist(data), col=col[1], breaks=breaks)
+  for (i in 2:length(data)) {
+    data <- data[-1]
+    hist(unlist(data), breaks=h1$breaks, col=col[i], add=T)
+  }
+}
+
+# Call mean & sd with a formula
+mean.formula <- function (formula, data=NULL, ...){
+  fun <- mean
+  cl <- match.call()
+  m <- match.call(expand.dots = FALSE)
+  if (is.matrix(eval(m$data, parent.frame())))
+    m$data <- as.data.frame(data)
+  m$... <- NULL
+  m[[1]] <- as.name("model.frame")
+  m <- eval(m, parent.frame())
+  Terms <- attr(m, "terms")
+   attr(Terms, "intercept") <- 0    ## no intercept
+  predictors <- model.matrix(Terms, m)
+  responses <- model.extract(m, response)
+  return(tapply(responses, predictors, mean, ...))
+}
+
+mean.list <- function(list, ...)
+  sapply(list, mean, ...)
+
+
+# For sd, we need to override sd defined in package stats, which is not object-oriented
+sd <- function(x, ...) {
+  if(class(x)=="formula")
+    sd.formula(x, ...)
+  else(stats::sd(x, ...))
+}
+
+sd.formula <- function (formula, data=NULL, ...){
+  cl <- match.call()
+  m <- match.call(expand.dots = FALSE)
+  if (is.matrix(eval(m$data, parent.frame())))
+    m$data <- as.data.frame(data)
+  m$... <- NULL
+  m[[1]] <- as.name("model.frame")
+  m <- eval(m, parent.frame())
+  Terms <- attr(m, "terms")
+   attr(Terms, "intercept") <- 0    ## no intercept
+  predictors <- model.matrix(Terms, m)
+  responses <- model.extract(m, response)
+  return(tapply(responses, predictors, sd, ...))
+}
+
+sd.list <- function(list, ...)
+  sapply(list, sd, ...)
+
+summary.formula <- function (formula, data=NULL, ...){
+#  cl <- match.call()
+  m <- match.call(expand.dots = FALSE)
+  if (is.matrix(eval(m$data, parent.frame())))
+    m$data <- as.data.frame(data)
+  m$... <- NULL
+  m[[1]] <- as.name("model.frame")
+  m$na.action <- "na.pass"
+  m <- eval(m, parent.frame())
+  Terms <- attr(m, "terms")
+   attr(Terms, "intercept") <- 0    ## no intercept
+  predictors <- model.matrix(Terms, m)
+  responses <- model.extract(m, response)
+  table <- table(NA)
+  for (line in levels(as.factor(predictors))) {
+    table <- rbind(table, summary(responses[predictors==line]))
+  }
+  rownames(table) <- levels(as.factor(predictors))
+  return(table)
+}
+
+summary.numeric <- function(object, ..., digits = max(3, getOption("digits") - 3)) { # based on summary.default from R 2.9.0
+  nas <- is.na(object)
+  object <- object[!nas]
+  qq <- stats::quantile(object)
+  qq <- signif(c(qq[1L:3L], mean(object), qq[4L:5L], diff(c(qq[2], qq[4])), sum(!nas), sum(nas)), digits)
+  names(qq) <- c("Min.", "1st Qu.", "Median", "Mean", "3rd Qu.", "Max.", "IQR", "Valid", "NA's")
+  return(qq)
+}
+
+summary.list <- function(list, ...)
+  t(sapply(list, summary, ...))
+
+# Functions to compute negative logs (and reverse). Useful in plots
+logscale <- function(x) {
+  if (is.null(x))
+    return(x)
+  # x: a numeric vector
+  sign(x) * log10(1 + abs(x))
+}
+logunscale <- function(x) {
+  if (is.null(x))
+    return(x)
+  # x: a numeric vector
+  sign(x) * (10^(abs(x)) - 1)
+}
+
+# Boxplot with log scale compatibe with negative values.
+boxplotlog <- function(x, ...) {
+  # x: must be a formula
+  # ...: arguments to be passed to boxplot()
+  if (class(x) != "formula")
+    stop("boxplotlog is currently only implemented for formula")
+  x2 <- as.formula(paste("logscale(", x[2], ")", x[1], x[3])) 
+  b <- boxplot(x2, ..., axes=FALSE)
+  box()
+  axis(1:length(b$names), b$names, side=1)
+#  y.seq <- seq(par("yaxp")[1], par("yaxp")[2], length.out=par("yaxp")[3]+1)
+#  y.seq <- logscale(10 ^ (-10:10))
+#  y.seq <- logscale(pretty(logunscale(par("yaxp")[1:2])))
+  #browser()
+  #if (par("yaxp")[1]>0) {
+  #  axp3 <- par("yaxp")[3]
+  #  if (axp3 > 3)
+  #    axp3 <- 3
+  #  y.seq <- logscale(axTicks(side=1, c(logunscale(par("yaxp")[1:2]), axp3), log=TRUE))
+  #}
+  #else {
+#    y.tmp <- c(logunscale(c(min(axTicks(1, par("yaxp"))[axTicks(1, par("yaxp"))>0]), max(axTicks(1, par("yaxp"))[axTicks(1, par("yaxp"))>0]))), -1)
+#    ticks.more.0 <- axTicks(side=1, axp=y.tmp, log=TRUE)
+#    y.seq <- logscale(c(0, ticks.more.0))
+     y.seq <- seq(par("yaxp")[1], par("yaxp")[2], length.out=par("yaxp")[3]+1)
+  #}
+  axis(y.seq, signif(logunscale(y.seq), 3), side=2)
+  return(b)
+}
+
+"%==i%" <- function(a, b) {
+  # Case insensitive equality.
+  tolower(a) == tolower(b)
+}
+
+
+print.file <- function(x, file, ...) {
+  # prints to a file
+  sink(file, ...)
+  print(x, ...)
+  sink(NULL)
+}
+
+
+combn.all <- function(x, ...) {
+  # find all the possibles combinations of x of all lengthes
+  # x: values to combine
+  # ...: further arguments for combn
+  # returns: a list of all the combinations
+  # example:
+  #   mol.combns <- combn.all(test.mols)
+  ret <- list()
+  for (i in 1:length(x)) {
+    c <- combn(x, i, ...)
+    for (j in 1:dim(c)[2]) {
+      ret[[length(ret)+1]] <- c[,j]
+    }
+  }
+  return(ret)
+}
+n.combn <- function(x, m) {
+  n <- length(x)
+  return(factorial(n) / (factorial(m) * factorial(n - m)))
+}
+
+
+num.hist <- function(..., cex.num=.7, line=-0.4, side=1) {
+  # create a histogram with the numbers below
+  h <- hist(...)
+  mtext(text=h$counts, at=h$mids, line=line, cex=cex.num, side=side)
+}
+
+rand <- function(from, to=NA, n=1) {
+  if (is.na(to)) {
+    # take one randomly from "from"
+    from[runif(n, 1, length(from)+1)]
+  }
+  else {
+    if (length(from) > 1 | length(to) > 1)
+      stop("from and to must be of length 1 if to is defined")
+    if (!(from == as.integer(from) & to == as.integer(to)))
+      stop("from and to must be integers")
+    # take a random integer between from and to
+    ceiling(runif(n, from-1, to))
+  }
+}
+
+# print the current device
+# Windows version:
+#imprimer <- function(device=win.print, printer=options("printer"))	dev.print(device, printer=printer)
+#imprimer.couleur <- function(device=win.print, printer=options("color.printer"))	dev.print(device, printer=printer)
+# Linux version:
+# printer: printer name for CUPS
+# ...: additional options for 
+imprimer <- function(printer=NULL, ...) {
+  if (!is.null(printer)) {
+    oldprinter <- Sys.getenv("PRINTER")
+    Sys.setenv("PRINTER"=printer)
+  }
+  dirname <- paste(tmpfile(dir="/tmp/RPrint/", ext="", create=FALSE), "/", sep="")
+  dir.create(dirname, recursive=T)
+  filename <- paste(dirname, "Rplots.ps", sep="")
+  dev.print(postscript, file=filename, print.it=TRUE)
+  file.remove(filename)
+  file.remove(dirname)
+  if (!is.null(printer)) {
+    Sys.setenv("PRINTER"=oldprinter)
+  }
+}
+imprimer.couleur <- function(printer=options("color.printer"), ...)  {
+  imprimer(printer=printer, ...)
+}
+
+# Create a temp file name in 'dir' with a random name of 'length' chars and an optional 'ext'
+# The file is created only if 
+tmpfile <- function(dir="/tmp/", length=8, ext="", create=FALSE) {
+  # Make sure the dir ends with /
+  if (length(grep("/$", dir)) == 0) {
+    dir <- paste(dir, "/", sep="")
+  }
+  # Prepare .ext if defined
+  if (ext != "") {
+    if (length(grep("^\\.", ext)) == 0) {
+      ext <- paste(".", ext, sep="")
+    }
+  }
+  # Create the file name
+  filename <- paste(dir, paste(c(LETTERS, letters, 0:10)[floor(runif(8, 1, 64))], collapse=""), ext, sep="")
+  # Create the file
+  if (create) {
+    # first make sure the dir exists
+    if (! file.exists(dir)) {
+      dir.create(dir)
+    }
+    file.create(filename)
+  }
+  # return the filename
+  return(filename)
+}
+
+source.dir <- function(dir=".", pattern=".R$") {
+  # source all files (with pattern pattern, defaults to all R files) in the the directory dir (default: current working directory)
+  dir <- sub("/$", "", dir) # remove potential / at the end of the path
+  sapply(paste(dir, dir(dir, pattern), sep="/"), source)
+}
+
+stack.trace <- function() {
+  # display a stack trace similar to traceback(). Intended to be used with options(error=stack.trace)
+  # Inspired from function base::recover: GPL
+  if (.isMethodsDispatchOn()) {
+    tState <- tracingState(FALSE)
+    on.exit(tracingState(tState))
+  }
+  calls <- sys.calls()
+  if (length(calls) == 1)
+    cat("No stack trace available.\n")
+  else {
+    cat("Stack trace: \n")
+    for (i in (length(calls)-1):1) {
+      cat(i, ":", sep="")
+      cur.call <- utils::capture.output(print(calls[[i]]))
+      if (length(cur.call) == 1)
+        cat(cur.call, sep="")
+      else {
+        cat(cur.call[1], "...", sep="")
+      }
+      if (!is.null(srcref <- attr(calls[[i]], "srcref"))) {
+        srcfile <- attr(srcref, "srcfile")
+        cat(" at ", basename(srcfile$filename), "#", srcref[1L], sep = "")
+      }
+      cat("\n")
+    }
+  }
+}
+
+
+dapply <- function(data, fun, columns=1:length(data), ...) {
+  # apply 'fun' to a data.frame 'data' and return the data.frame with 'columns' modified by fun.
+  # 'fun' must return a vector of the same length as its first argument (e.g. mean, sd, as.factor, ...)
+  if (is.character(columns)) {
+    if (any(! columns %in% names(data)))
+      warning("Some column names could not be matched.")
+    columns <- match(columns, names(data))
+  }
+  if (is.character(fun))
+    fun <- match.fun(fun)
+
+  for (i in columns) {
+    data[,i] <- fun(data[,i], ...)
+  }
+  data
+}
+
+# sapply function from base modified to handle multicore
+mcsapply <- function (X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE) {
+  library(multicore)
+  FUN <- match.fun(FUN)
+  answer <- multicore:::mclapply(X, FUN, ...)
+  if (USE.NAMES && is.character(X) && is.null(names(answer))) 
+    names(answer) <- X
+  if (!identical(simplify, FALSE) && length(answer)) 
+    simplify2array(answer, higher = (simplify == "array"))
+  else answer
+}
+
+
+#help.start <- function(update = FALSE, gui = "irrelevant", browser = getOption("browser"), remote = NULL, seti=TRUE) {
+#  # update of utils::print.help_files_with_topic. If local is true, will start on the local filesystem
+#  # GPL.
+#  if (seti) {
+#     home <- "http://seti.isb-sib.ch/RHelp"
+#  }
+#  else if (is.null(remote)) {
+#    if(tools:::httpdPort == 0L) tools::startDynamicHelp()
+#    if (tools:::httpdPort > 0L) {
+#      if(update) make.packages.html(temp = TRUE)
+#      home <- paste("http://127.0.0.1:", tools:::httpdPort, sep = "")
+#    }
+#    else stop("help.start() requires the HTTP server to be running", call. = FALSE)
+#  }
+#  else
+#    home <- remote
+#  url <- paste(home, "/doc/html/index.html", sep = "")
+#  cat(gettextf("If nothing happens, you should open\n'%s' yourself\n", url))
+#  browseURL(url, browser = browser)
+#  invisible()
+#}
+
+#.getHelpFile <- function(file) {
+#  path <- dirname(file)
+#  dirpath <- dirname(path)
+#  if(!file.exists(dirpath))
+#    stop(gettextf("invalid '%s' argument", "file"), domain = NA)
+#  pkgname <- basename(dirpath)
+#  RdDB <- file.path(path, pkgname)
+#  if(!file.exists(paste(RdDB, "rdx", sep=".")))
+#    stop(gettextf("package %s exists but was not installed under R >= 2.10.0 so help cannot be accessed", sQuote(pkgname)), domain = NA)
+#  tools:::fetchRdDB(RdDB, basename(file))
+#}
+
+#print.help_files_with_topic <- function(x, prefix=getOption("help_server"), ...) {
+#  # update of utils::print.help_files_with_topic for work with a single server on port 42042.
+#  # GPL.
+#    browser <- getOption("browser")
+#    topic <- attr(x, "topic")
+#    type <- attr(x, "type")
+#    if (.Platform$GUI == "AQUA" && type == "html") {
+#        browser <- function(x, ...) {
+#            .Internal(aqua.custom.print("help-files", x))
+#    	    return(invisible(x))
+#        }
+#    }
+#    paths <- as.character(x)
+#    if(!length(paths)) {
+#        writeLines(c(gettextf("No documentation for '%s' in specified packages and libraries:",
+#                              topic),
+#                     gettextf("you could try '??%s'",
+#                              topic)))
+#        return(invisible(x))
+#    }
+#
+##    if(type == "html")
+##        if (tools:::httpdPort == 0L) tools::startDynamicHelp()
+#
+#    if(attr(x, "tried_all_packages")) {
+#        paths <- unique(dirname(dirname(paths)))
+#        msg <- gettextf("Help for topic '%s' is not in any loaded package but can be found in the following packages:",
+#                        topic)
+##        if (type == "html" && tools:::httpdPort > 0L) {
+#        if (type == "html") {
+#            path <- file.path(tempdir(), ".R/doc/html")
+#            dir.create(path, recursive = TRUE, showWarnings = FALSE)
+#            out <- paste('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n',
+#                         '<html><head><title>R: help</title>\n',
+#                         '<meta http-equiv="Content-Type" content="text/html; charset="UTF-8">\n',
+#                         '<link rel="stylesheet" type="text/css" href="/doc/html/R.css">\n',
+#                         '</head><body>\n\n<hr>\n', sep="")
+#            out <- c(out, '<p>', msg, '</p><br>')
+#            out <- c(out, '<table width="100%" summary="R Package list">\n',
+#                     '<tr align="left" valign="top">\n',
+#                     '<td width="25%">Package</td><td>Library</td></tr>\n')
+#            pkgs <- basename(paths)
+##            links <- paste('<a href="http://127.0.0.1:', tools:::httpdPort,
+#            links <- paste(prefix,
+#                           '/library/', pkgs, '/help/', topic, '">',
+#                           pkgs, '</a>', sep = "")
+#            out <- c(out, paste('<tr align="left" valign="top">\n',
+#                                '<td>', links, '</td><td>',
+#                                dirname(paths), '</td></tr>\n',
+#                                sep = ""))
+#            out <- c(out, "</table>\n</p>\n<hr>\n</body></html>")
+#            writeLines(out, file.path(path, "all.available.html"))
+##            browseURL(paste("http://127.0.0.1:", tools:::httpdPort,
+#            browseURL(paste(prefix,
+#                            "/doc/html/all.available.html", sep=""), browser)
+#        } else {
+#            writeLines(c(strwrap(msg), "",
+#                         paste(" ",
+#                               formatDL(c(gettext("Package"), basename(paths)),
+#                                        c(gettext("Library"), dirname(paths)),
+#                                        indent = 22))))
+#        }
+#    } else {
+#        if(length(paths) > 1L) {
+##            if (type == "html" && tools:::httpdPort > 0L) { # Redo the search if dynamic help is running
+#            if (type == "html") { # Redo the search if dynamic help is running
+##		browseURL(paste("http://127.0.0.1:", tools:::httpdPort,
+#		browseURL(paste(prefix,
+#                                "/library/NULL/help/", topic, sep=""), browser)
+#		return(invisible(x))
+#	    }
+#            file <- paths[1L]
+#            p <- paths
+#            msg <- gettextf("Help on topic '%s' was found in the following packages:",
+#                            topic)
+#            paths <- dirname(dirname(paths))
+#            txt <- formatDL(c("Package", basename(paths)),
+#                            c("Library", dirname(paths)),
+#                            indent = 22L)
+#            writeLines(c(strwrap(msg), "", paste(" ", txt), ""))
+#            if(interactive()) {
+#                fp <- file.path(paths, "Meta", "Rd.rds")
+#                tp <- basename(p)
+#                titles <- tp
+#                if(type == "html" || type == "latex")
+#                    tp <- tools::file_path_sans_ext(tp)
+#                for (i in seq_along(fp)) {
+#                    tmp <- try(.readRDS(fp[i]))
+#                    titles[i] <- if(inherits(tmp, "try-error"))
+#                        "unknown title" else
+#                    tmp[tools::file_path_sans_ext(tmp$File) == tp[i], "Title"]
+#                }
+#                txt <- paste(titles, " {", basename(paths), "}", sep="")
+#                ## FIXME: use html page for HTML help.
+#                res <- menu(txt, title = gettext("Choose one"),
+#                            graphics = getOption("menu.graphics"))
+#                if(res > 0) file <- p[res]
+#            } else {
+#                writeLines(gettext("\nUsing the first match ..."))
+#            }
+#        }
+#        else
+#            file <- paths
+#
+#        if(type == "html") {
+##            if (tools:::httpdPort > 0L) {
+#		path <- dirname(file)
+#		dirpath <- dirname(path)
+#		pkgname <- basename(dirpath)
+##		browseURL(paste("http://127.0.0.1:", tools:::httpdPort,
+#		browseURL(paste(prefix,
+#                                "/library/", pkgname, "/html/", basename(file),
+#                                ".html", sep = ""), browser)
+##            } else {
+##                warning("HTML help is unavailable", call. = FALSE)
+##                att <- attributes(x)
+##                xx <- sub("/html/([^/]*)\\.html$", "/help/\\1", x)
+##                attributes(xx) <- att
+##                attr(xx, "type") <- "text"
+##                print(xx)
+##            }
+#        } else if(type == "text") {
+#            pkgname <- basename(dirname(dirname(file)))
+#            temp <- tools::Rd2txt(.getHelpFile(file), out = tempfile("Rtxt"),
+#                                  package = pkgname)
+#            file.show(temp, title = gettextf("R Help on '%s'", topic),
+#                      delete.file = TRUE)
+#        }
+#        else if(type %in% c("ps", "postscript", "pdf")) {
+#            tf2 <- tempfile("Rlatex")
+#            tools::Rd2latex(.getHelpFile(file), tf2)
+#            .show_help_on_topic_offline(tf2, topic, type)
+#            unlink(tf2)
+#        }
+#    }
+#
+#    invisible(x)
+#}

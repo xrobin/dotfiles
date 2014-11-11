@@ -12,9 +12,9 @@ alias panelomix='ssh xrobin@panelomix.net'
 # Basic system aliases
 alias ssdu='sudo du --si --max-depth=1'
 alias l='ls -CF'
-alias ll='ls -l'
+alias ll='ls -lh'
 alias la='ls -A'
-alias lal='ls -al'
+alias lal='ls -alh'
 
 # Some shortcuts to Mac apps for the command line:
 if [ `uname` == Darwin ]; then
