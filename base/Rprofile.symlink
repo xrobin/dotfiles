@@ -26,7 +26,7 @@ if (interactive()) {
 	# options(htmlhelp=TRUE)
 	
 	# Attach the packages earlier than defaults, so that what we load later has the priority!
-	options("defaultPackages" = c(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo")))
+	# options("defaultPackages" = c(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo")))
 	
 	# attach R/functions.R in a new environment called UserFunctions
 	sys.source("~/.Rfunctions.R", env=attach(NULL, name="UserFunctions"), keep.source=TRUE)
