@@ -237,10 +237,10 @@ mean.list <- function(list, ...)
 
 # For sd, we need to override sd defined in package stats, which is not object-oriented
 sd <- function(x, ...) {
-  if(class(x)=="formula")
-    sd.formula(x, ...)
-  else(stats::sd(x, ...))
+	UseMethod("sd")
 }
+
+sd.default <- stats::sd
 
 sd.formula <- function (formula, data=NULL, ...){
   cl <- match.call()

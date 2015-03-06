@@ -1,0 +1,3 @@
+[submodule "safe-rm"]
+	path = safe-rm
+	url = https://gitorious.org/safe-rm/mainline.git

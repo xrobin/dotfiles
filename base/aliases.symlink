@@ -23,3 +23,9 @@ fi
 
 # Safer mv asks before overwriting
 alias mv='mv -i'
+
+# Makes make faster - but only when called directly as it may have side effects...
+alias make='make -j 4'
+
+# Safer rm
+alias rm='rm --preserve-root -I'

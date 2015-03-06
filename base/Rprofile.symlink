@@ -4,6 +4,15 @@ local({
 	invisible(sapply(local.files, source))
 })
 
+# set a CRAN mirror
+local({
+	r <- getOption("repos")
+	r["CRAN"] <- "http://mirrors.dotsrc.org/cran/"
+	#r["r.forge"] <- "http://r-forge.r-project.org"
+	options(repos=r)
+})
+    
+
 if (interactive()) {
 	# Things you might want to change
 
@@ -32,10 +41,12 @@ if (interactive()) {
 	sys.source("~/.Rfunctions.R", env=attach(NULL, name="UserFunctions"), keep.source=TRUE)
 	
 	# set a CRAN mirror
-	local({r <- getOption("repos")
-	      r["CRAN"] <- "http://mirrors.dotsrc.org/cran/"
-	      r["r.forge"] <- "http://r-forge.r-project.org"
-	      options(repos=r)})
+# Don't set r.forge, it's a mess of unstable builds! 
+#	local({r <- getOption("repos")
+#	      #r["CRAN"] <- "http://mirrors.dotsrc.org/cran/"
+#	      # CRAN is already selected - add R-forge in interactive sessions
+#	      r["r.forge"] <- "http://r-forge.r-project.org"
+#	      options(repos=r)})
 	
 	# Don't ask to save workspace on quit...
 	q <- function(save="no", ...)
