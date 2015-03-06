@@ -21,3 +21,5 @@ if [ `uname` == Darwin ]; then
 	alias TextMate='open -a TextMate.app'
 fi
 
+# Safer mv asks before overwriting
+alias mv='mv -i'
