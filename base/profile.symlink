@@ -19,3 +19,6 @@ if [ -f ~/.profile.local ]; then
 fi
 
 export HOSTALIASES=~/.hosts
+
+# Gloud compute needs pyhon 2.7 
+export CLOUDSDK_PYTHON=`which python2`
