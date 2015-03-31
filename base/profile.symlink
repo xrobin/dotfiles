@@ -21,4 +21,4 @@ fi
 export HOSTALIASES=~/.hosts
 
 # Gloud compute needs pyhon 2.7 
-export CLOUDSDK_PYTHON=`which python2`
+export CLOUDSDK_PYTHON=`which python2 2>/dev/null`
