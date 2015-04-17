@@ -1,3 +1,6 @@
+# Get uname before messing up with path
+uname=$(uname)
+
 # For an explanation of .bashrc, .bash_profile and .profile, see http://superuser.com/questions/789448/choosing-between-bashrc-profile-bash-profile-etc
 # In short: environment variables go to .profile, all shell-specific stuff in .bashrc.
 export PATH=~/bin:~/local/bin:$PATH:/sbin:/usr/sbin
@@ -10,7 +13,7 @@ export R_LIBS_USER=~/R/library/:/opt/R/lib:/home/people/xavier/R/lib
 # Make sure our customised gtkrc file is loaded.
 export GTK2_RC_FILES=$HOME/.gtkrc-2.0
 
-if [ -f ~/.profile.mac ] && [ "Darwin" == "$(uname)" ]; then
+if [ -f ~/.profile.mac ] && [ "Darwin" == "$uname" ]; then
 	. ~/.profile.mac
 fi
 
