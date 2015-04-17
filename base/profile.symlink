@@ -1,6 +1,6 @@
 # For an explanation of .bashrc, .bash_profile and .profile, see http://superuser.com/questions/789448/choosing-between-bashrc-profile-bash-profile-etc
 # In short: environment variables go to .profile, all shell-specific stuff in .bashrc.
-export PATH=~/bin:$PATH
+export PATH=~/bin:~/local/bin:$PATH
 export R_LIBS_USER=~/R/library/:/opt/R/lib:/home/people/xavier/R/lib
 
 #export MOZ_NO_REMOTE=1
@@ -22,3 +22,7 @@ export HOSTALIASES=~/.hosts
 
 # Gloud compute needs pyhon 2.7 
 export CLOUDSDK_PYTHON=`which python2 2>/dev/null`
+
+# Use man pages in .local
+export MANPATH=~/local/man:~/local/share/man:$MANPATH
+
