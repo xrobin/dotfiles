@@ -91,7 +91,9 @@ shopt -s histappend
 
 # make make faster by parallelizing
 # Only in interactive shells for safety reasons...
-export MAKEFLAGS=-j`nproc`
+if hash nproc 2>/dev/null; then
+	export MAKEFLAGS=-j`nproc`
+fi
 
 #/home/xavier/.showcow
 [[ -f "/home/xavier/.config/autopackage/paths-bash" ]] && . "/home/xavier/.config/autopackage/paths-bash"
