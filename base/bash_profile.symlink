@@ -7,7 +7,7 @@ fi
 
 if [ -f ~/.bashrc ]; then
 	# Read .bashrc 	only if it hasn't already been done
-	[ $_READ_BASHRC == $$ ] || . ~/.bashrc
+	[ "$_READ_BASHRC" == "$$" ] || . ~/.bashrc
 fi
 
 ##
