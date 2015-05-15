@@ -4,6 +4,15 @@ local({
 	invisible(sapply(local.files, source))
 })
 
+# set a CRAN mirror
+local({
+	r <- getOption("repos")
+	r["CRAN"] <- "http://mirrors.dotsrc.org/cran/"
+	#r["r.forge"] <- "http://r-forge.r-project.org"
+	options(repos=r)
+})
+    
+
 if (interactive()) {
 	# Things you might want to change
 
@@ -26,16 +35,18 @@ if (interactive()) {
 	# options(htmlhelp=TRUE)
 	
 	# Attach the packages earlier than defaults, so that what we load later has the priority!
-	options("defaultPackages" = c(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo")))
+#	options("defaultPackages" = c(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo")))
 	
 	# attach R/functions.R in a new environment called UserFunctions
 	sys.source("~/.Rfunctions.R", env=attach(NULL, name="UserFunctions"), keep.source=TRUE)
 	
 	# set a CRAN mirror
-	local({r <- getOption("repos")
-	      r["CRAN"] <- "http://mirrors.dotsrc.org/cran/"
-	      r["r.forge"] <- "http://r-forge.r-project.org"
-	      options(repos=r)})
+# Don't set r.forge, it's a mess of unstable builds! 
+#	local({r <- getOption("repos")
+#	      #r["CRAN"] <- "http://mirrors.dotsrc.org/cran/"
+#	      # CRAN is already selected - add R-forge in interactive sessions
+#	      r["r.forge"] <- "http://r-forge.r-project.org"
+#	      options(repos=r)})
 	
 	# Don't ask to save workspace on quit...
 	q <- function(save="no", ...)
@@ -51,7 +62,7 @@ if (interactive()) {
 	# setup printers
 	#options(printer="HP LaserJet 2300 Series PS (NB 9036)")
 	options(color.printer="Canon-iR-ADV-C5045")
-	options(printers=system("lpstat -a|grep -o '^[^ ]\\+'", intern=T))
+	options(printers=suppressWarnings(system("which lpstat > /dev/null && lpstat -a 2>/dev/null | grep -o '^[^ ]\\+'", intern=T)))
 	#options(device=function(...) {
 	#	if (length(system("ps -ef|grep compiz", TRUE)) == 4)
 	#		CairoX11(...)

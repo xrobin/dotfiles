@@ -3,7 +3,8 @@
 
 if [ `uname` == Darwin ]; then
 	export PATH=/opt/local/libexec/gnubin/:/opt/local/bin:/opt/local/sbin:/opt/local/lib/postgresql93/bin/:$PATH
-	export PYTHONPATH=$PYTHONPATH:/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/
+	#export PYTHONPATH=$PYTHONPATH:`python -c 'import site; import sys; sys.stdout.write(":".join(site.getsitepackages()))'`
+	#export PYTHONPATH=$PYTHONPATH:/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/
 	launchctl setenv R_LIBS_USER $R_LIBS_USER # Must be available to RStudio
 
 	#export MOZ_NO_REMOTE=1
