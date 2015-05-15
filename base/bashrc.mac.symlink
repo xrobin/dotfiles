@@ -1,3 +1,6 @@
+# Run on mac only
+[ `uname` != "Darwin" ] && return
+
 # Enable completions from /opt/local with macports
 # sudo port install bash-completion
 if [ -f /opt/local/etc/profile.d/bash_completion.sh ]; then
