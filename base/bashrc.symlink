@@ -153,3 +153,6 @@ if [[ $HOSTNAME =~ lindinglab-.+-opensuse-13-[0-9] ]]; then
 	export HOSTNAME=`echo $HOSTNAME | sed 's/lindinglab-\(.\+\)-opensuse-13-[[:digit:]]/\1/'`;
 	PS1="`echo $PS1 | sed 's/\\\\h/$HOSTNAME/'` "
 fi
+
+# Remember if the file was read already
+export _READ_BASHRC=$$
