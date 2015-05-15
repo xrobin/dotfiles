@@ -9,3 +9,7 @@ fi
 if [ -f /opt/local/bin/lesspipe.sh ]; then
 	export LESSOPEN='| /opt/local/bin/lesspipe.sh %s'
 fi
+
+# Rstudio needs MAKEFLAGS to go faster
+launchctl setenv MAKEFLAGS "$MAKEFLAGS"
+launchctl setenv PATH "$PATH"
