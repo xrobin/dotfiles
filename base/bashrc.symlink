@@ -91,7 +91,9 @@ shopt -s histappend
 
 # make make faster by parallelizing
 # Only in interactive shells for safety reasons...
-# export MAKEFLAGS="-j 4"
+if hash nproc 2>/dev/null; then
+	export MAKEFLAGS=-j`nproc`
+fi
 
 #/home/xavier/.showcow
 [[ -f "/home/xavier/.config/autopackage/paths-bash" ]] && . "/home/xavier/.config/autopackage/paths-bash"
@@ -105,6 +107,10 @@ export CLICOLORS=1
 
 if [ -f ~/.aliases ]; then 
 	. ~/.aliases 
+fi
+
+if [ -f ~/.aliases.local ]; then 
+	. ~/.aliases.local 
 fi
 
 # Source additional local files
@@ -138,3 +144,15 @@ fi
 #set -o physical
 #set -o interactive-comments
 
+# Google Compute servers have very complicated names
+if [[ $HOST =~ lindinglab-.+-opensuse-13-[0-9] ]]; then 
+       	export HOST=`echo $HOST | sed 's/lindinglab-\(.\+\)-opensuse-13-[[:digit:]]/\1/'`;
+	PS1="`echo $PS1 | sed 's/\\\\h/$HOST/'` "
+fi
+if [[ $HOSTNAME =~ lindinglab-.+-opensuse-13-[0-9] ]]; then 
+	export HOSTNAME=`echo $HOSTNAME | sed 's/lindinglab-\(.\+\)-opensuse-13-[[:digit:]]/\1/'`;
+	PS1="`echo $PS1 | sed 's/\\\\h/$HOSTNAME/'` "
+fi
+
+# Remember if the file was read already
+export _READ_BASHRC=$$
