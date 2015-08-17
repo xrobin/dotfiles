@@ -7,7 +7,7 @@ local({
 # set a CRAN mirror
 local({
 	r <- getOption("repos")
-	r["CRAN"] <- "http://mirrors.dotsrc.org/cran/"
+	r["CRAN"] <- "https://stat.ethz.ch/CRAN/"
 	#r["r.forge"] <- "http://r-forge.r-project.org"
 	options(repos=r)
 })
