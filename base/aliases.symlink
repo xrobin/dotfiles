@@ -31,6 +31,6 @@ alias make='make -j 4'
 alias rm='rm --preserve-root -I'
 
 # Python virtual environments activation
-alias python3.4-enable=". ~/python/3.4/bin/activate"
-alias python3.5-enable=". ~/python/3.5/bin/activate"
-alias python2.7-enable=". ~/python/2.7/bin/activate"
+alias python3.4-activate=". ~/python/3.4/bin/activate"
+alias python3.5-activate=". ~/python/3.5/bin/activate"
+alias python2.7-activate=". ~/python/2.7/bin/activate"
