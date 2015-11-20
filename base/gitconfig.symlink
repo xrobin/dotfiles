@@ -20,7 +20,6 @@
         ui = true
 [core]
         excludesfile = ~/.gitignore
-        editor = vim
 	autocrlf = input
 	pager = less -R
 [apply]
