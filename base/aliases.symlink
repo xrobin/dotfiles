@@ -34,3 +34,8 @@ alias rm='rm --preserve-root -I'
 alias python3.4-activate=". ~/python/3.4/bin/activate"
 alias python3.5-activate=". ~/python/3.5/bin/activate"
 alias python2.7-activate=". ~/python/2.7/bin/activate"
+
+# Make aliases work with sudo
+# http://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
+alias sudo='sudo '
+
