@@ -16,3 +16,11 @@ fi
 # Rstudio needs MAKEFLAGS to go faster
 launchctl setenv MAKEFLAGS "$MAKEFLAGS"
 launchctl setenv PATH "$PATH"
+
+# R needs to know where to find the libraries
+launchctl setenv R_LIBS_USER "$R_LIBS_USER"
+
+# We need to have some compiler flags to use macport's /opt/local
+launchctl setenv CPPFLAGS $CPPFLAGS
+launchctl setenv CFLAGS $CFLAGS
+launchctl setenv LDFLAGS $LDFLAGS
