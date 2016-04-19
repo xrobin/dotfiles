@@ -35,3 +35,6 @@ nmap <silent> ,sv :so $MYVIMRC<cr>
 
 " Try to enable the keyboard
 set clipboard=unnamed
+
+" Show status bar (ruler)
+set ruler
