@@ -30,12 +30,14 @@ alias make='make -j 4'
 # Safer rm
 alias rm='rm --preserve-root -I'
 
-# Python virtual environments activation
-alias python3.4-activate=". ~/python/3.4/bin/activate"
-alias python3.5-activate=". ~/python/3.5/bin/activate"
-alias python2.7-activate=". ~/python/2.7/bin/activate"
-
 # Make aliases work with sudo
 # http://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
 alias sudo='sudo '
 
+# Python virtual environments activation
+for version in ~/python/[23].[0-9]
+do
+	bn=$(basename "$version")
+	activate=${version}/bin/activate
+	test -e "$activate" && alias python${bn}-activate="$activate"
+done
