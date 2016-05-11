@@ -1,11 +1,18 @@
 # For an explanation of .bashrc, .bash_profile and .profile, see http://superuser.com/questions/789448/choosing-between-bashrc-profile-bash-profile-etc
 # In short: environment variables go to .profile, all shell-specific stuff in .bashrc.
 
+# We need set_launchctl_env
+if [[ ! `type -t set_launchctl_env` ]]
+then
+	. .profile.functions
+fi
+
+
 if [ `uname` == Darwin ]; then
 	export PATH=/opt/local/libexec/gnubin/:/opt/local/bin:/opt/local/sbin:/opt/local/lib/postgresql93/bin/:$PATH
 	#export PYTHONPATH=$PYTHONPATH:`python -c 'import site; import sys; sys.stdout.write(":".join(site.getsitepackages()))'`
 	#export PYTHONPATH=$PYTHONPATH:/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/
-	launchctl setenv R_LIBS_USER $R_LIBS_USER # Must be available to RStudio
+	set_launchctl_env R_LIBS_USER $R_LIBS_USER
 
 	#export MOZ_NO_REMOTE=1
 	#export PERL5LIB="/home/xavier/Master/stage_MIAPE/MIAPE/lib:/home/xavier/Master/stage_MIAPE/MIAPE/perl/lib"
