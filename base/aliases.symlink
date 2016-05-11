@@ -39,5 +39,5 @@ for version in ~/python/[23].[0-9]
 do
 	bn=$(basename "$version")
 	activate=${version}/bin/activate
-	test -e "$activate" && alias python${bn}-activate="$activate"
+	test -e "$activate" && alias python${bn}-activate=". $activate"
 done
