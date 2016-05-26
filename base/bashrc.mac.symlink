@@ -1,6 +1,12 @@
 # Run on mac only
 [ `uname` != "Darwin" ] && return
 
+# We need set_launchctl_env
+if [[ ! `type -t set_launchctl_env` ]]
+then
+	. .profile.functions
+fi
+
 # Enable completions from /opt/local with macports
 # sudo port install bash-completion
 if [ -f /opt/local/etc/profile.d/bash_completion.sh ]; then
@@ -14,5 +20,13 @@ if [ -f /opt/local/bin/lesspipe.sh ]; then
 fi
 
 # Rstudio needs MAKEFLAGS to go faster
-launchctl setenv MAKEFLAGS "$MAKEFLAGS"
-launchctl setenv PATH "$PATH"
+set_launchctl_env MAKEFLAGS "$MAKEFLAGS"
+set_launchctl_env PATH "$PATH"
+
+# R needs to know where to find the libraries
+set_launchctl_env R_LIBS_USER "$R_LIBS_USER"
+
+# We need to have some compiler flags to use macport's /opt/local
+set_launchctl_env CPPFLAGS "$CPPFLAGS"
+set_launchctl_env CFLAGS "$CFLAGS"
+set_launchctl_env LDFLAGS "$LDFLAGS"

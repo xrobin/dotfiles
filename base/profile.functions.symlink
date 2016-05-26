@@ -1,0 +1,8 @@
+# We need a function to run launchctl setenv only if the value is defined
+set_launchctl_env () {
+    key=$1;
+    value=$2;
+    if [ ! -z "$value" ]; then
+        launchctl setenv "$key" "$value";
+    fi
+}
