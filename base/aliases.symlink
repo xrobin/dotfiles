@@ -42,3 +42,7 @@ do
 	activate=${version}/bin/activate
 	test -e "$activate" && alias python${bn}-activate=". $activate"
 done
+
+if [ -f ~/.aliases.local ]; then
+    . ~/.aliases.local
+fi
