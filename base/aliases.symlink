@@ -1,14 +1,3 @@
-#SSH to servers
-alias xrn='ssh xavier@xavier.robin.name'
-alias arthur='ssh xavier@arthur.xavasite.net'
-alias columbus='ssh columbus1'
-# Queuing system:
-alias cpr='ssh protein-s0.cbs.dtu.dk'
-alias cge='ssh cge-s2.cbs.dtu.dk'
-# Unige systems:
-alias seti='ssh xrobin@seti.unige.ch'
-alias panelomix='ssh xrobin@panelomix.net'
-
 # Basic system aliases
 alias ssdu='sudo du --si --max-depth=1'
 alias l='ls -CF'
