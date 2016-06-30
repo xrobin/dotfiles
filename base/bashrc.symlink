@@ -124,7 +124,10 @@ fi
 if test -n "$(shopt -s nullglob; echo ~/.bashrc.*)"
 then
 	for f in ~/.bashrc.*; do
-	       . $f
+		if [[ "$f" == *.backup ]]; then
+			continue
+		fi
+		. $f
 	done
 fi
 
