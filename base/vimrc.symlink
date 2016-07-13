@@ -22,6 +22,9 @@ set showmode
 " with +wildmenu.  See :help 'wildmenu'
 set wildmenu
 
+" highlight matching [{()}]
+set showmatch
+
 " Let's make it easy to edit this file (mnemonic for the key sequence is
 " 'e'dit 'v'imrc)
 nmap <silent> ,ev :e $MYVIMRC<cr>
@@ -42,3 +45,13 @@ set ruler
 " Fix backspace key on mac
 " http://stackoverflow.com/questions/3534028/mac-terminal-vim-will-only-use-backspace-when-at-the-end-of-a-line
 set backspace=indent,eol,start
+
+" Enable search as you type
+:set incsearch
+
+" highlight matches
+set hlsearch
+
+" turn off search highlight with ,<space>
+nnoremap <leader><space> :nohlsearch<CR>
+
