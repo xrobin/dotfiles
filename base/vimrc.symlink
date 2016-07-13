@@ -56,6 +56,9 @@ set hlsearch
 nnoremap <leader><space> :nohlsearch<CR>
 
 " include a local file if present
-if filereadable(".vimrc.local")
-	source .vimrc.local
+if filereadable(expand("~/.vimrc.local"))
+	source ~/.vimrc.local
 endif
+"if filereadable(".vimrc.local")
+"	source .vimrc.local
+"endif
