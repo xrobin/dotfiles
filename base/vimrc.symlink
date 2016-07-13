@@ -55,3 +55,7 @@ set hlsearch
 " turn off search highlight with ,<space>
 nnoremap <leader><space> :nohlsearch<CR>
 
+" include a local file if present
+if filereadable(".vimrc.local")
+	source .vimrc.local
+endif
