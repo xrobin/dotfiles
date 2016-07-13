@@ -59,6 +59,3 @@ nnoremap <leader><space> :nohlsearch<CR>
 if filereadable(expand("~/.vimrc.local"))
 	source ~/.vimrc.local
 endif
-"if filereadable(".vimrc.local")
-"	source .vimrc.local
-"endif
