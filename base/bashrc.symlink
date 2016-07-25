@@ -164,5 +164,19 @@ if [[ $HOSTNAME =~ lindinglab-.+-opensuse-13-[0-9] ]]; then
 	PS1="`echo $PS1 | sed 's/\\\\h/$HOSTNAME/'` "
 fi
 
+
+# Sends an email alert. Useful to run after long commands
+# Ex: some_long_command; mail_alert "some_long_command finished"
+function mail_alert {
+        last_exit=$?
+        MSG=$1
+        if [ "$MSG" == "" ]; then
+                MSG=`basename "$0"`
+        fi
+
+        echo -e "Subject: $MSG\n\nCommand returned ${last_exit}." | sendmail xavier
+}
+
+
 # Remember if the file was read already
 export _READ_BASHRC=$$
