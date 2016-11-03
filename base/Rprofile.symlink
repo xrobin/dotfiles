@@ -11,7 +11,15 @@ local({
 	#r["r.forge"] <- "http://r-forge.r-project.org"
 	options(repos=r)
 })
-    
+   
+# Set a custom library if R was compiled with ICC
+# Problem is: how to find this out?
+# Cheap solution: look at R_HOME
+if (Sys.getenv("R_HOME") == paste0("/opt/R/", R.version$major, ".", R.version$minor, "-intel/lib64/R")) {
+# Heuristic: there is a non-empty INTEL_LICENSE_FILE variable if that's the case
+#if (Sys.getenv("INTEL_LICENSE_FILE") != "") {
+	.libPaths(stringr::str_replace(.libPaths()[1], "/?$", "-intel"))
+}
 
 if (interactive()) {
 	# Things you might want to change
