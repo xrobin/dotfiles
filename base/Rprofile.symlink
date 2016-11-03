@@ -130,11 +130,7 @@ if (interactive()) {
 	print(fortune())
 	
 	# nicer errors
-	if (interactive()) {
-		options(error=stack.trace) # stack.trace is a function in "UserFunctions" env (see MesDocs/R/functions.R).
-	} else {
-		options(error=utils::dump.frames)
-	}
+	options(error=stack.trace) # stack.trace is a function in "UserFunctions" env (see MesDocs/R/functions.R).
 	
 	# Don't import table with strings converted as factor – most of the time it's wrong!!
 	options(stringsAsFactors = FALSE)
@@ -144,4 +140,7 @@ if (interactive()) {
 	  source(".First.R")
 	  cat("[Profil local exécuté]\n")
 	}
+} else {
+	# Here is the right place to setup non-interactive tracebacks
+	options(error = function() traceback(3))
 }

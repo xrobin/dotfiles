@@ -167,15 +167,17 @@ fi
 
 # Sends an email alert. Useful to run after long commands
 # Ex: some_long_command; mail_alert "some_long_command finished"
-function mail_alert {
-        last_exit=$?
-        MSG=$1
-        if [ "$MSG" == "" ]; then
-                MSG=`basename "$0"`
-        fi
-
-        echo -e "Subject: $MSG\n\nCommand returned ${last_exit}." | sendmail xavier
-}
+if hash sendmail 2>/dev/null; then
+	function mail_alert {
+	        last_exit=$?
+	        MSG=$1
+	        if [ "$MSG" == "" ]; then
+	                MSG=`basename "$0"`
+	        fi
+	
+	        echo -e "Subject: $MSG\n\nCommand returned ${last_exit}." | sendmail xavier
+	}
+fi
 
 
 # Remember if the file was read already
