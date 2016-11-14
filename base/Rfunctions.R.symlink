@@ -433,6 +433,30 @@ stempfile <- function(...) {
 	return(fn)
 }
 
+# Creates a temporary file securely with a system call to mktemp
+#' @param template the template, which must end with at least 3 'X's. Only alphanumeric characters, underscore and dots are allowed.
+#' @param tmpdir the containing temporary folder. Only alphanumeric characters, underscore and dots are allowed.
+#' @return the newly created file name
+#' @examples
+#' tmpfile <- stempfile2()
+#' file.remove(tmpfile)
+stempfile2 <- function(template = "file.XXXXXXXXXX", tmpdir = tempdir()) {
+	if (length(template) > 1) {
+		stop("Expected a single 'template'")
+	}
+	if (grepl("[^a-zA-Z0-9.]", template)) {
+		stop("Only alphanumeric characters, underscore and dots are allowed in 'template'")
+	}
+	if (!grepl("XXX$", template)) {
+		stop("'template' must end with at least 3 'X's")
+	}
+	if (grepl("[^a-zA-Z0-9._/]", tmpdir)) {
+		stop("Only alphanumeric characters, underscore and dots are allowed in the components of 'tmpdir'")
+	}
+	fn <- system2("mktemp", file.path(tmpdir, template), stdout = TRUE)
+	return(fn)
+}
+
 source.dir <- function(dir=".", pattern=".R$") {
   # source all files (with pattern pattern, defaults to all R files) in the the directory dir (default: current working directory)
   dir <- sub("/$", "", dir) # remove potential / at the end of the path
