@@ -27,14 +27,15 @@ reattach = function(x) {
 format.pval2 <- function(x, ...) {
   xf <- sapply(x, function(x, ...) {
     if (x <= 0.001)
-      xf <- paste(format.pval(x, ...), "***", sep="")
+      paste(format.pval(x, ...), "***", sep="")
     else if (x <= 0.01)
-      xf <- paste(format.pval(x, ...), "**", sep="")
+      paste(format.pval(x, ...), "**", sep="")
     else if (x <= 0.05)
-      xf <- paste(format.pval(x, ...), "*", sep="")
+      paste(format.pval(x, ...), "*", sep="")
     else 
-      xf <- (paste(format.pval(x, ...), "(NS)"))
+      paste(format.pval(x, ...), "(NS)")
   }, ...)
+  xf
 }
 
 
