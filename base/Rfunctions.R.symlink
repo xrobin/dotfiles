@@ -407,12 +407,10 @@ imprimer <- function(printer=NULL, ...) {
     oldprinter <- Sys.getenv("PRINTER")
     Sys.setenv("PRINTER"=printer)
   }
-  dirname <- paste(tmpfile(dir="/tmp/RPrint/", ext="", create=FALSE), "/", sep="")
-  dir.create(dirname, recursive=T)
-  filename <- paste(dirname, "Rplots.ps", sep="")
+
+  filename <- tempfile(pattern="Rplots", fileext = ".ps")
   dev.print(postscript, file=filename, print.it=TRUE)
   file.remove(filename)
-  file.remove(dirname)
   if (!is.null(printer)) {
     Sys.setenv("PRINTER"=oldprinter)
   }
@@ -421,31 +419,18 @@ imprimer.couleur <- function(printer=options("color.printer"), ...)  {
   imprimer(printer=printer, ...)
 }
 
-# Create a temp file name in 'dir' with a random name of 'length' chars and an optional 'ext'
-# The file is created only if 
-tmpfile <- function(dir="/tmp/", length=8, ext="", create=FALSE) {
-  # Make sure the dir ends with /
-  if (length(grep("/$", dir)) == 0) {
-    dir <- paste(dir, "/", sep="")
-  }
-  # Prepare .ext if defined
-  if (ext != "") {
-    if (length(grep("^\\.", ext)) == 0) {
-      ext <- paste(".", ext, sep="")
-    }
-  }
-  # Create the file name
-  filename <- paste(dir, paste(c(LETTERS, letters, 0:10)[floor(runif(8, 1, 64))], collapse=""), ext, sep="")
-  # Create the file
-  if (create) {
-    # first make sure the dir exists
-    if (! file.exists(dir)) {
-      dir.create(dir)
-    }
-    file.create(filename)
-  }
-  # return the filename
-  return(filename)
+# Creates a temporary file as securely as possible
+#' @param ... arguments for \code{\link{tempfile}}
+stempfile <- function(...) {
+	fn <- tempfile(...)
+	# Create the file as close to the tempfile call for max security
+	# Note that this is not enough to exclude a race condition but it doesn't seem
+	# possible to do that directly in R. 
+	fc <- file.create(fn)
+	if (! fc) {
+		stop("Couldn't create temporary file. Please check warning messages for further information.")
+	}
+	return(fn)
 }
 
 source.dir <- function(dir=".", pattern=".R$") {
