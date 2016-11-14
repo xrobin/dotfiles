@@ -142,5 +142,5 @@ if (interactive()) {
 	}
 } else {
 	# Here is the right place to setup non-interactive tracebacks
-	options(error = function() traceback(3))
+	options(error = function() {traceback(3); q("no", 1)})
 }
