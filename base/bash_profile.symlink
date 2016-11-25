@@ -2,7 +2,7 @@
 # In short: environment variables go to .profile, all shell-specific stuff in .bashrc.
 
 if [ -f ~/.profile ]; then
-	. ~/.profile
+	[ "$_READ_PROFILE" == "$$" ] || . ~/.profile
 fi
 
 if [ -f ~/.bashrc ]; then
