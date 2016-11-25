@@ -181,7 +181,11 @@ if hash sendmail 2>/dev/null; then
 	        last_exit=$?
 	        MSG=$1
 	        if [ "$MSG" == "" ]; then
-	                MSG=`basename "$0"`
+			if [ "$0" == "-bash" ]; then
+				MSG="mail_alert"
+			else
+		                MSG=`basename "$0"`
+			fi
 	        fi
 	
 	        echo -e "Subject: $MSG\n\nCommand returned ${last_exit}." | sendmail xavier
