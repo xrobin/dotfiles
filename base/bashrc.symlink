@@ -8,6 +8,15 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
+# In SUSE, /etc/profile force reads our .bashrc before .profile, which causes
+# all sorts of issue (incomplete PATH, etc)
+# Detect this condition and exit if necessary
+# Remember: we read .bashrc from .bash_profile, which is sourced by login shells
+if [[ $MACHTYPE == "x86_64-suse-linux" ]] && [[ $SSH_CONNECTION != "" ]] && [[ $_READ_PROFILE == "" ]]; then
+	echo "Detected early sourcing of .bashrc on OpenSUSE. Aborting!"
+	return
+fi
+
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
