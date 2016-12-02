@@ -142,5 +142,11 @@ if (interactive()) {
 	}
 } else {
 	# Here is the right place to setup non-interactive tracebacks
-	options(error = function() {traceback(3); q("no", 1)})
+	#options(error = function() {traceback(3); q("no", 1)})
+	#options(error = quote(dump.frames(to.file = TRUE)))
+	options(error = function() {
+		traceback(3)
+		dump.frames(to.file = TRUE)
+		q("no", 1)
+	})
 }
