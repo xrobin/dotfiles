@@ -22,8 +22,6 @@ if (Sys.getenv("R_HOME") == paste0("/opt/R/", R.version$major, ".", R.version$mi
 }
 
 if (interactive()) {
-	# Things you might want to change
-
 	# options(papersize="a4")
 	# options(editor="notepad")
 	# options(pager="internal")
@@ -78,9 +76,6 @@ if (interactive()) {
 	#		X11(...)
 	#})
 	
-	# Java parameter: prevents unwanted exiting upon Control-C (see https://www.rforge.net/bugzilla/show_bug.cgi?id=237)
-	options(java.parameters="-Xrs")
-	
 	if (require(Cairo)) {
 		CairoFonts(
 			regular="Fontin Sans Rg:style=Regular",
@@ -132,15 +127,6 @@ if (interactive()) {
 	# nicer errors
 	#options(error=stack.trace) # stack.trace is a function in "UserFunctions" env (see MesDocs/R/functions.R).
 	options(error = function() traceback(3))
-	
-	# Don't import table with strings converted as factor – most of the time it's wrong!!
-	options(stringsAsFactors = FALSE)
-
-	# look for a startup file in the current directory
-	if (file.exists(".First.R")) {
-	  source(".First.R")
-	  cat("[Profil local exécuté]\n")
-	}
 } else {
 	# Here is the right place to setup non-interactive tracebacks
 	#options(error = function() {traceback(3); q("no", 1)})
@@ -150,4 +136,16 @@ if (interactive()) {
 		dump.frames(to.file = TRUE)
 		q("no", 1)
 	})
+}
+
+# Java parameter: prevents unwanted exiting upon Control-C (see https://www.rforge.net/bugzilla/show_bug.cgi?id=237)
+options(java.parameters="-Xrs")
+
+# Don't import table with strings converted as factor – most of the time it's wrong!!
+options(stringsAsFactors = FALSE)
+
+# look for a startup file in the current directory
+if (file.exists(".First.R")) {
+	source(".First.R")
+	cat("[Profil local exécuté]\n")
 }
