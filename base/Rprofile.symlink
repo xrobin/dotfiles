@@ -130,7 +130,8 @@ if (interactive()) {
 	print(fortune())
 	
 	# nicer errors
-	options(error=stack.trace) # stack.trace is a function in "UserFunctions" env (see MesDocs/R/functions.R).
+	#options(error=stack.trace) # stack.trace is a function in "UserFunctions" env (see MesDocs/R/functions.R).
+	options(error = function() traceback(3))
 	
 	# Don't import table with strings converted as factor – most of the time it's wrong!!
 	options(stringsAsFactors = FALSE)
