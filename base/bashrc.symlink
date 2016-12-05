@@ -12,9 +12,19 @@
 # all sorts of issue (incomplete PATH, etc)
 # Detect this condition and exit if necessary
 # Remember: we read .bashrc from .bash_profile, which is sourced by login shells
-if [[ $MACHTYPE == "x86_64-suse-linux" ]] && [[ $SSH_CONNECTION != "" ]] && [[ $_READ_PROFILE == "" ]]; then
-	echo "Detected early sourcing of .bashrc on OpenSUSE. Aborting!"
-	return
+if [[ $MACHTYPE == "x86_64-suse-linux" ]] && [[ $SSH_CONNECTION != "" ]]; then
+	if [[ $_READ_PROFILE == "" ]]; then
+		echo "Detected early sourcing of .bashrc on OpenSUSE. Aborting!"
+		OPENSUSE_EARLY_SOURCING=1
+		return
+	elif [[ "$OPENSUSE_EARLY_SOURCING" == 1 ]]; then
+		echo "Detected normal sourcing of .bashrc on OpenSUSE. Proceeding!"
+		unset OPENSUSE_EARLY_SOURCING
+	fi
+fi
+# Detect if we are reading .bashrc again and display a message if we are
+if [[ "$_READ_BASHRC" == $$ ]]; then
+	echo ".bashrc has already been sourced. Sourcing this file multiple times is not recommended. Please check your system for errors."
 fi
 
 # check the window size after each command and, if necessary,
@@ -194,4 +204,4 @@ fi
 
 
 # Remember if the file was read already
-export _READ_BASHRC=$$
+_READ_BASHRC=$$
