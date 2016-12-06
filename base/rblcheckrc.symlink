@@ -1,0 +1,15 @@
+apache.bl.blocklist.de # Apache, RFI, w00tw00t, SQL-Injection, Forum-Spam + http://honeystats.info/
+bruteforcelogin.bl.blocklist.de # All IPs, which have attacked Joomla, Wordpress and other Web-Logins with Brute-Force
+bl.blocklist.de # All IP-Addresses (all Services)
+all.bl.blocklist.de # All IP-Addresses (all Services)
+ftp.bl.blocklist.de # FTP -> only IP's there have run FTP Brute-Force-Attacks.
+imap.bl.blocklist.de # imap, pop3, sasl, webmail-Logins....
+mail.bl.blocklist.de # mail/postfix, 5xx-Errors (Blacklist-Entries), Relaying...
+ssh.bl.blocklist.de # IPs there runs SSH-Attacks.
+sip.bl.blocklist.de # IPs, who has tried a Sip/Asterisk Brute-Force-Login-Attack. 
+sbl.spamhaus.org
+xbl.spamhaus.org
+pbl.spamhaus.org
+bl.spamcop.net
+psbl.surriel.com
+
