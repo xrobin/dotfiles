@@ -8,6 +8,25 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
+# In SUSE, /etc/profile force reads our .bashrc before .profile, which causes
+# all sorts of issue (incomplete PATH, etc)
+# Detect this condition and exit if necessary
+# Remember: we read .bashrc from .bash_profile, which is sourced by login shells
+if [[ $MACHTYPE == "x86_64-suse-linux" ]] && [[ $SSH_CONNECTION != "" ]]; then
+	if [[ $_READ_PROFILE == "" ]]; then
+		echo "Detected early sourcing of .bashrc on OpenSUSE. Aborting!"
+		OPENSUSE_EARLY_SOURCING=1
+		return
+	elif [[ "$OPENSUSE_EARLY_SOURCING" == 1 ]]; then
+		echo "Detected normal sourcing of .bashrc on OpenSUSE. Proceeding!"
+		unset OPENSUSE_EARLY_SOURCING
+	fi
+fi
+# Detect if we are reading .bashrc again and display a message if we are
+if [[ "$_READ_BASHRC" == $$ ]]; then
+	echo ".bashrc has already been sourced. Sourcing this file multiple times is not recommended. Please check your system for errors."
+fi
+
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
@@ -164,5 +183,25 @@ if [[ $HOSTNAME =~ lindinglab-.+-opensuse-13-[0-9] ]]; then
 	PS1="`echo $PS1 | sed 's/\\\\h/$HOSTNAME/'` "
 fi
 
+
+# Sends an email alert. Useful to run after long commands
+# Ex: some_long_command; mail_alert "some_long_command finished"
+if hash sendmail 2>/dev/null; then
+	function mail_alert {
+	        last_exit=$?
+	        MSG=$1
+	        if [ "$MSG" == "" ]; then
+			if [ "$0" == "-bash" ]; then
+				MSG="mail_alert"
+			else
+		                MSG=`basename "$0"`
+			fi
+	        fi
+	
+	        echo -e "Subject: $MSG\n\nCommand returned ${last_exit}." | sendmail xavier
+	}
+fi
+
+
 # Remember if the file was read already
-export _READ_BASHRC=$$
+_READ_BASHRC=$$

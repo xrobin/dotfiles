@@ -30,3 +30,6 @@ set_launchctl_env R_LIBS_USER "$R_LIBS_USER"
 set_launchctl_env CPPFLAGS "$CPPFLAGS"
 set_launchctl_env CFLAGS "$CFLAGS"
 set_launchctl_env LDFLAGS "$LDFLAGS"
+
+# What CPU are we running with?
+CPU_STRING=$(sysctl -n machdep.cpu.brand_string)

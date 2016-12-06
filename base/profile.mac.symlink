@@ -4,7 +4,7 @@
 # We need set_launchctl_env
 if [[ ! `type -t set_launchctl_env` ]]
 then
-	. .profile.functions
+	. ~/.profile.functions
 fi
 
 

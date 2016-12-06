@@ -11,11 +11,17 @@ local({
 	#r["r.forge"] <- "http://r-forge.r-project.org"
 	options(repos=r)
 })
-    
+   
+# Set a custom library if R was compiled with ICC
+# Problem is: how to find this out?
+# Cheap solution: look at R_HOME
+if (Sys.getenv("R_HOME") == paste0("/opt/R/", R.version$major, ".", R.version$minor, "-intel/lib64/R")) {
+# Heuristic: there is a non-empty INTEL_LICENSE_FILE variable if that's the case
+#if (Sys.getenv("INTEL_LICENSE_FILE") != "") {
+	.libPaths(stringr::str_replace(.libPaths()[1], "/?$", "-intel"))
+}
 
 if (interactive()) {
-	# Things you might want to change
-
 	# options(papersize="a4")
 	# options(editor="notepad")
 	# options(pager="internal")
@@ -70,9 +76,6 @@ if (interactive()) {
 	#		X11(...)
 	#})
 	
-	# Java parameter: prevents unwanted exiting upon Control-C (see https://www.rforge.net/bugzilla/show_bug.cgi?id=237)
-	options(java.parameters="-Xrs")
-	
 	if (require(Cairo)) {
 		CairoFonts(
 			regular="Fontin Sans Rg:style=Regular",
@@ -122,18 +125,27 @@ if (interactive()) {
 	print(fortune())
 	
 	# nicer errors
-	if (interactive()) {
-		options(error=stack.trace) # stack.trace is a function in "UserFunctions" env (see MesDocs/R/functions.R).
-	} else {
-		options(error=utils::dump.frames)
-	}
-	
-	# Don't import table with strings converted as factor – most of the time it's wrong!!
-	options(stringsAsFactors = FALSE)
+	#options(error=stack.trace) # stack.trace is a function in "UserFunctions" env (see MesDocs/R/functions.R).
+	options(error = function() traceback(3))
+} else {
+	# Here is the right place to setup non-interactive tracebacks
+	#options(error = function() {traceback(3); q("no", 1)})
+	#options(error = quote(dump.frames(to.file = TRUE)))
+	options(error = function() {
+		traceback(3)
+		dump.frames(to.file = TRUE)
+		q("no", 1)
+	})
+}
 
-	# look for a startup file in the current directory
-	if (file.exists(".First.R")) {
-	  source(".First.R")
-	  cat("[Profil local exécuté]\n")
-	}
+# Java parameter: prevents unwanted exiting upon Control-C (see https://www.rforge.net/bugzilla/show_bug.cgi?id=237)
+options(java.parameters="-Xrs")
+
+# Don't import table with strings converted as factor – most of the time it's wrong!!
+options(stringsAsFactors = FALSE)
+
+# look for a startup file in the current directory
+if (file.exists(".First.R")) {
+	source(".First.R")
+	cat("[Profil local exécuté]\n")
 }

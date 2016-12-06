@@ -29,3 +29,5 @@ export CLOUDSDK_PYTHON=`which python2 2>/dev/null`
 # Use man pages in .local
 export MANPATH=~/local/man:~/local/share/man:$MANPATH
 
+# Mark .profile as read
+export _READ_PROFILE=$$
