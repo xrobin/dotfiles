@@ -8,7 +8,7 @@ BASEDIR=$(dirname "$0")
 >&2 echo "Checking for libwrap support in sshd"
 ldd $(which sshd) | grep libwrap
 libwrap_success=$?
-if [[ $libwrap_success ]]; then
+if [[ $libwrap_success != 0 ]]; then
 	>&2 echo "Libwrap not found!"
 	exit 1
 fi
