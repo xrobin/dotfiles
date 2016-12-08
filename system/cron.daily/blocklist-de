@@ -5,5 +5,5 @@
 #
 # The IPs are used in /etc/hosts.deny. See man 5 hosts_allow for more details
 
-wget -O /etc/blocklist.de/strongips.txt https://lists.blocklist.de/lists/strongips.txt
-wget -O /etc/blocklist.de/ssh.txt https://lists.blocklist.de/lists/ssh.txt
+curl -fsS https://lists.blocklist.de/lists/strongips.txt > /etc/blocklist.de/strongips.txt
+curl -fsS https://lists.blocklist.de/lists/ssh.txt > /etc/blocklist.de/ssh.txt
