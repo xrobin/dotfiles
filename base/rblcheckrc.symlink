@@ -1,15 +1,81 @@
-apache.bl.blocklist.de # Apache, RFI, w00tw00t, SQL-Injection, Forum-Spam + http://honeystats.info/
-bruteforcelogin.bl.blocklist.de # All IPs, which have attacked Joomla, Wordpress and other Web-Logins with Brute-Force
-bl.blocklist.de # All IP-Addresses (all Services)
-all.bl.blocklist.de # All IP-Addresses (all Services)
-ftp.bl.blocklist.de # FTP -> only IP's there have run FTP Brute-Force-Attacks.
-imap.bl.blocklist.de # imap, pop3, sasl, webmail-Logins....
-mail.bl.blocklist.de # mail/postfix, 5xx-Errors (Blacklist-Entries), Relaying...
-ssh.bl.blocklist.de # IPs there runs SSH-Attacks.
-sip.bl.blocklist.de # IPs, who has tried a Sip/Asterisk Brute-Force-Login-Attack. 
+dnsbl.abuse.ch
+cbl.abuseat.org
+dnsbl.anticaptcha.net
+l2.apews.org
+duinv.aupads.org
+rsbl.aupads.org
+ips.backscatterer.org
+b.barracudacentral.org
+bl.blocklist.de
+all.bl.blocklist.de
+apache.bl.blocklist.de
+bruteforcelogin.bl.blocklist.de
+ftp.bl.blocklist.de
+imap.bl.blocklist.de
+mail.bl.blocklist.de
+sip.bl.blocklist.de
+ssh.bl.blocklist.de
+bogons.cymru.com
+dnsbl.dronebl.org
+spamsources.fabel.dk
+msgid.bl.gweep.ca
+proxy.bl.gweep.ca
+relays.bl.gweep.ca
+hil.habeas.com
+blocked.hilli.dk
+dnsbl.inps.de
+dialup.blacklist.jippg.org
+mail-abuse.blacklist.jippg.org
+black.junkemailfilter.com
+dnsbl.justspam.org
+dnsbl.kempt.net
+blacklist.sci.kun.nl
+spamguard.leadmon.net
+dialups.mail-abuse.org
+#relays.mail-abuse.org
+bl.mailspike.net
+no-more-funn.moensted.dk
+relays.nether.net
+dev.null.dk
+spam.olsentech.net
+dnsbl.antispam.or.id
+cblless.anti-spam.org.cn
+pss.spambusters.org.ar
+ccess.redhawk.org
+all.s5h.net
+rbl.schulte.org
+exitnodes.tor.dnsbl.sectoor.de
+korea.services.net
+rbl.snark.net
+dnsbl.sorbs.net
+block.dnsbl.sorbs.net
+dul.dnsbl.sorbs.net
+escalations.dnsbl.sorbs.net
+http.dnsbl.sorbs.net
+misc.dnsbl.sorbs.net
+new.dnsbl.sorbs.net
+old.dnsbl.sorbs.net
+recent.dnsbl.sorbs.net
+smtp.dnsbl.sorbs.net
+socks.dnsbl.sorbs.net
+spam.dnsbl.sorbs.net
+web.dnsbl.sorbs.net
+zombie.dnsbl.sorbs.net
+bl.spamcannibal.org
+bl.spamcop.net
+pbl.spamhaus.org
 sbl.spamhaus.org
 xbl.spamhaus.org
-pbl.spamhaus.org
-bl.spamcop.net
+zen.spamhaus.org
+cart00ney.surriel.com
 psbl.surriel.com
-
+#bl.tiopan.com
+dnsbl.tornevall.org
+opm.tornevall.org
+dnsbl-1.uceprotect.net
+dnsbl-2.uceprotect.net
+dnsbl-3.uceprotect.net
+ubl.unsubscore.com
+intruders.docs.uu.se
+dialups.visi.com
+#blackholes.wirehub.net
