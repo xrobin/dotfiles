@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# This script refreshes the block lists in /etc/blocklist.de from blocklist.de
+# The list of blocklists can be found on https://www.blocklist.de/en/export.html
+#
+# The IPs are used in /etc/hosts.deny. See man 5 hosts_allow for more details
+
+curl -fsS https://lists.blocklist.de/lists/strongips.txt > /etc/blocklist.de/strongips.txt
+curl -fsS https://lists.blocklist.de/lists/ssh.txt > /etc/blocklist.de/ssh.txt

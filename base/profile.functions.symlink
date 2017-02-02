@@ -6,3 +6,10 @@ set_launchctl_env () {
         launchctl setenv "$key" "$value";
     fi
 }
+
+# A function to display full command line with pgrep
+# See http://serverfault.com/questions/77162/how-to-get-pgrep-to-display-full-process-info
+function ppgrep() {
+	pgrep "$@" | xargs --no-run-if-empty ps -fp; 
+}
+

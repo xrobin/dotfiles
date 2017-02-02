@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# This script refreshes the block lists in /etc/spamhaus from spamhaus.org
+#
+# The IPs are used in /etc/hosts.deny. See man 5 hosts_allow for more details
+
+curl -fsS https://www.spamhaus.org/drop/drop.lasso|sed 's/;/#/' > /etc/spamhaus/drop.lasso
