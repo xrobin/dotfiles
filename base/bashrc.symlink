@@ -69,6 +69,12 @@ then
 	PS1='\[\033[0;47m\](`echo $?`)\[\033[48;5;10m\]\u\[\033[47m\]\[\033[30m\]@\[\033[48;5;13m\]\h\[\033[47m\]\[\033[30m\]:\[\033[48;5;14m\]\w\[\033[47m\]\[\033[30m\]\$\[$(tput sgr0)\] '
 fi
 
+# Red prompt for root
+if [[ $UID == 0 ]]
+then
+	PS1="\[\033[0;37m\](`echo $?`)${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h:\w# \[\033[00m\]"
+fi
+
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
