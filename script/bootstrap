@@ -52,6 +52,14 @@ setup_gitconfig () {
   fi
 }
 
+pull_submodules () {
+    info 'setup git submodules'
+    cd "$DOTFILES_ROOT"
+    git submodule init
+    git submodule update
+    success "git submodules up to date"
+}
+
 link_files () {
   ln -s $1 $2
   success "linked $1 to $2"
@@ -155,6 +163,8 @@ install_docopt () {
         fi
     fi
 }
+
+pull_submodules
 
 # setup_gitconfig
 install_dotfiles
