@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -uo pipefail
+
+eval "$(docopts -V - -h - : "$@" <<EOF
+Top a process and its children
+
+Usage: ptop [options] <pid>
+
+      --verbose  Generate verbose messages.
+      --help     Show help options.
+      --version  Print program version.
+----
+ptop 0.1.0
+EOF
+)"
+
+# Check for the existence of a process
+# See http://stackoverflow.com/questions/3043978/how-to-check-if-a-process-id-pid-exists
+ps -p "$pid" >/dev/null
+if [ "$?" != 0 ]; then
+	>&2 echo "No process $pid"
+	exit 1
+fi
+
+#echo "top -p \$(getcpid -a $pid | paste -d, -s) -n 1 -b"
+watch "top -p \$(getcpid -a $pid | paste -d, -s) -n 1 -b"
+
