@@ -1,0 +1,17 @@
+#!/bin/bash
+
+DIR="$1"
+if [ "$DIR" == "" ]
+then
+	DIR=.
+fi
+
+# This script finds the Icon\r files created by Google Drive (and maybe Dropbox?) on mac at least
+>&2 echo Executes the following: 
+>&2 echo find \"$DIR\" -name \$\'Icon\\r\'
+find "$DIR" -name $'Icon\r'
+#echo Execute the following command to remove all these files:
+#echo find . -name \$\'Icon\\r\' -exec rm {} \\\;
+
+#echo Note that this syntax works too: 
+#echo find . -name \'Icon\'\$\'\\r\'

@@ -1,0 +1,98 @@
+#!/usr/bin/env python
+
+"""Replaces file duplicates with a link
+
+Usage:
+  link-duplicates.py [options] [--] ROOT
+
+Options:
+  -h --help     Show this screen.
+  -V --version  Show version.
+  -v --verbose  Increase verbosity.
+  -d -n --dry   Dry run.
+  -m --md5      Check that files have identical MD5 sums.
+  -q --quiet    Don't print out the link commands
+  -s --symlink  Use symbolic links instead of hard links.
+
+"""
+
+import hashlib, logging, os, sys
+from docopt import docopt
+
+# Syntax: duplicates.py DIRECTORY
+# 
+
+
+def md5(fname):
+    hash_md5 = hashlib.md5()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+
+args = docopt(__doc__, version='Link Duplicates 1.0')
+d = {}
+hashes = {}
+
+# Setup logging
+if args["--verbose"]:
+    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG, format='%(levelname)s:%(message)s')
+elif args["--quiet"]:
+    logging.basicConfig(stream=sys.stderr, level=logging.WARNING, format='%(message)s')
+else:
+    logging.basicConfig(stream=sys.stderr, level=logging.INFO, format='%(message)s')
+    
+
+# Select the linking function - hard or symbolic
+if args["--symlink"]:
+    logging.debug("Using symlinks")
+else:
+    logging.debug("Using hard links")
+
+# Walk the tree
+for root, dirs, files in os.walk(args["ROOT"], topdown=False):
+    for name in files:
+        fn = os.path.join(root, name)
+        if os.path.islink(fn):
+            continue # already a link
+        
+        basename, extension = os.path.splitext(name)
+        basename = basename.lower() # ignore case
+
+        if basename in d:
+            canonical_fn = d[basename]
+            link_fn = fn
+            canonical_folder, canonical_name = os.path.split(canonical_fn)
+            link_folder, link_name = os.path.split(link_fn)
+            
+            # Check MD5
+            if args["--md5"]:
+                link_md5 = md5(link_fn)
+                if basename in hashes:
+                    canonical_md5 = hashes[basename]
+                else:
+                    canonical_md5 = md5(canonical_fn)
+                    hashes[basename] = canonical_md5
+                    if (link_md5 != canonical_md5) or args["--verbose"]:
+                        log.info("canonical_md5: " + canonical_md5)
+                        log.info("link_md5:      " + link_md5)
+                        if (link_md5 != canonical_md5):
+                            raise Exception("MD5 checksums differ!")
+
+            # Replace file with link
+            if not args["--dry"]:
+                os.unlink(link_fn)
+                if args["--symlink"]:
+                    # Symlinks need path relative to the folder containing the link
+                    link_path =  os.path.relpath(canonical_fn, link_folder)
+                    if not args["--quiet"]:
+                        logging.info("ln -s " + link_path + " " + link_fn)
+                    os.symlink(link_path, link_fn)
+                else:
+                    # Hard links need path relative to the pwd
+                    if not args["--quiet"]:
+                        logging.info("ln " + canonical_fn + " " + link_fn)
+                    os.link(canonical_fn, link_fn)
+        else:
+            d[basename] = fn

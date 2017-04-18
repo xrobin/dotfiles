@@ -1,0 +1,8 @@
+#!/bin/bash
+
+domains=(kinomexplorer.info kinomexplorer.lindinglab.org kinomexplorer.lindinglab.science kinomexplorer.science netphorest.info netphorest.lindinglab.org netphorest.lindinglab.science netphorest.science networkin.info networkin.lindinglab.org networkin.lindinglab.science networkin.science v1.netphorest.info v1.netphorest.lindinglab.org v1.netphorest.lindinglab.science v1.netphorest.science v1.networkin.info v1.networkin.lindinglab.org v1.networkin.lindinglab.science v1.networkin.science v2.netphorest.info v2.netphorest.lindinglab.org v2.netphorest.lindinglab.science v2.netphorest.science v2.networkin.info v2.networkin.lindinglab.org v2.networkin.lindinglab.science v2.networkin.science v3.networkin.info v3.networkin.lindinglab.org v3.networkin.lindinglab.science v3.networkin.science www.kinomexplorer.info www.kinomexplorer.science www.netphorest.info www.netphorest.science www.networkin.info www.networkin.science)
+
+for domain in ${domains[@]}; do
+	echo " http://$domain/ ->  " $(curl -ILs -o /dev/null -w %{url_effective} http://$domain)
+	echo "https://$domain/ -> " $(curl -ILs -o /dev/null -w %{url_effective} https://$domain)
+done
