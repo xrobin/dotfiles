@@ -10,7 +10,7 @@ Usage: getcpid [options] <pid>
       --help     Show help options.
       --version  Print program version.
 ----
-ptop 0.1.0
+getcpid 0.1.0
 EOF
 )"
 
