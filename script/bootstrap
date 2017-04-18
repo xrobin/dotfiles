@@ -25,7 +25,7 @@ soft_fail () {
 }
 
 fail () {
-  soft_fail
+  soft_fail "$1"
   echo ''
   exit
 }
