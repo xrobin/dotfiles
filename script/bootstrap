@@ -30,6 +30,22 @@ fail () {
   exit
 }
 
+try_exec () {
+    cmd=$1
+    error_msg=$2
+    set +e
+    e_out=$(eval $1 2>&1 )
+    e_success=$?
+    set -e
+    if [[ $e_success == 0 ]]; then
+        : # continue
+    else
+        soft_fail "$error_msg. Full output:"
+        echo "$e_out"
+        exit $e_success
+    fi
+}
+
 setup_gitconfig () {
   if ! [ -f git/gitconfig.symlink ]
   then
@@ -150,17 +166,8 @@ install_docopt () {
         success "skipped docopts"
     else
         cd $DOTFILES_ROOT/docopts
-        set +e
-        pyinstall_out=$( python setup.py install --user 2>&1 )
-        pyinstall_success=$?
-        set -e
-        if [[ $pyinstall_success == 0 ]]; then
-            try_install_file $DOTFILES_ROOT/docopts/docopts $HOME/bin/docopts
-        else
-            soft_fail "error installing docopts. Full output:"
-            echo "$pyinstall_out"
-            exit
-        fi
+        try_exec "python setup.py install --user" "error installing docopts"
+        try_install_file $DOTFILES_ROOT/docopts/docopts $HOME/bin/docopts
     fi
 }
 
