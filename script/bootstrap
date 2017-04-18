@@ -40,7 +40,7 @@ try_exec () {
     if [[ $e_success == 0 ]]; then
         : # continue
     else
-        soft_fail "$error_msg. Full output:"
+        soft_fail "$error_msg ($cmd). Full output:"
         echo "$e_out"
         exit $e_success
     fi
