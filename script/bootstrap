@@ -140,6 +140,20 @@ try_install_file() {
     
 }
 
+install_pip () {
+    info "installing pip"
+
+    if hash pip 2>/dev/null; then
+        success "pip already installed"
+    else
+        if hash easy_install 2>/dev/null; then
+            try_exec "easy_install --user pip --user" "error installing pip"
+        else
+            fail "cannot install pip on this system. Try with https://bootstrap.pypa.io/get-pip.py"
+        fi
+    fi
+}
+
 install_dotfiles () {
   info 'installing dotfiles'
 
@@ -171,6 +185,7 @@ install_docopt () {
     fi
 }
 
+install_pip
 pull_submodules
 
 # setup_gitconfig
