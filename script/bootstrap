@@ -180,7 +180,7 @@ install_docopt () {
         success "skipped docopts"
     else
         cd $DOTFILES_ROOT/docopts
-        try_exec "python setup.py install --user" "error installing docopts"
+        try_exec "python setup.py build" "error installing docopts"
         try_install_file $DOTFILES_ROOT/docopts/docopts $HOME/bin/docopts
     fi
 }
