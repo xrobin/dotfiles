@@ -35,3 +35,7 @@ done
 if [ -f ~/.aliases.local ]; then
     . ~/.aliases.local
 fi
+
+# Youtube-dl common formats
+alias youtube-dl-webm='youtube-dl -f "bestvideo[ext=webm]+bestaudio[ext=webm]"'
+alias youtube-dl-mp4='youtube-dl -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]"'
