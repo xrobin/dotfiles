@@ -1,0 +1,22 @@
+#!/bin/sh
+
+eval "$(docopts -V - -h - : "$@" <<EOF
+Replaces broken links in <path> with a text file whose content is the (missing) target of the link
+
+Usage: ${0##*/} [options] <path>
+
+      --help     Show help options.
+      --version  Print program version.
+----
+${0##*/} 0.2.0
+EOF
+)"
+
+
+for file in `find $path -xtype l`
+do
+	echo $file
+	target=`readlink $file`
+	rm $file
+	echo $target > $file
+done
