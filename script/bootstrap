@@ -134,6 +134,10 @@ try_install_file() {
         success "skipped $src"
       fi
 
+    elif [ -h "$dst" -a ! -e "$dst"  ] ; then
+      rm "$dst"
+      link_files $src $dst
+
     else
       link_files $src $dst
     fi
