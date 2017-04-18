@@ -25,7 +25,7 @@ soft_fail () {
 }
 
 fail () {
-  soft_fail
+  soft_fail "$1"
   echo ''
   exit
 }
@@ -149,7 +149,7 @@ install_pip () {
         if hash easy_install 2>/dev/null; then
             try_exec "easy_install --user pip --user" "error installing pip"
         else
-            fail "cannot install pip on this system. Try with https://bootstrap.pypa.io/get-pip.py"
+            fail "cannot install pip on this system. Try with https://bootstrap.pypa.io/get-pip.py or your package manager"
         fi
     fi
 }
