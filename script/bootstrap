@@ -71,8 +71,8 @@ setup_gitconfig () {
 pull_submodules () {
     info 'setup git submodules'
     cd "$DOTFILES_ROOT"
-    git submodule init
-    git submodule update
+    try_exec "git submodule init" "error initializing git submodules"
+    try_exec "git submodule update" "error updating git submodules"
     success "git submodules up to date"
 }
 
