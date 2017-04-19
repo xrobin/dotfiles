@@ -151,9 +151,16 @@ install_pip () {
         success "pip already installed"
     else
         if hash easy_install 2>/dev/null; then
-            try_exec "easy_install --user pip --user" "error installing pip"
+	    # Does easy_install support "--user"?
+	    if ! easy_install --help|grep user>/dev/null; then 
+		# Try with get_pip
+		try_exec "wget https://bootstrap.pypa.io/get-pip.py" "error downloading get-pip.py"
+		try_exec "python get-pip.py --user" "error installing pip with get-pip.py"
+	    else
+	        try_exec "easy_install --user pip" "error installing pip with easy_install"
+	    fi
         else
-            fail "cannot install pip on this system. Try with https://bootstrap.pypa.io/get-pip.py or your package manager (typically python-pip package)"
+            fail "cannot install pip on this system. Try manually or with your package manager (typically python-pip package)"
         fi
     fi
 }
