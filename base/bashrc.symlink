@@ -106,11 +106,24 @@ if [ "$TERM" != "dumb" ]; then
 fi
 
 if [ "`locale language 2>/dev/null`" == "French" ]; then
-	echo ""
-	echo "Bienvenue Maître vénéré $USER !"
-	echo "Dieu de tous les Dieux !"
-	echo "Soyez productif durant cette journée !"
-	echo ""
+	FULL_NAME=$(getent passwd "$USER" | cut -d ':' -f 5)
+	if [ "$FULL_NAME" != "" ]; then
+		echo ""
+		read -r -d '' GREETING << EOM
+Bienvenue Maître vénéré $FULL_NAME !
+Dieu de tous les Dieux !
+Soyez productif durant cette journée !
+EOM
+		if hash cowsay 2>/dev/null; then 
+			echo "$GREETING" | awk 'BEGIN{RS="\n" ; ORS="\n\n";}{ print }' | cowsay -W 60 -f $(cowsay -l | tail -n +2 | tr " " "\n" | shuf -n1)
+		else
+			echo ""
+			echo "$GREETING"		
+			echo ""
+		fi
+	fi
+elif [ "$SHOW_FORTUNE" = true ]; then
+	fortune | cowsay -f $(cowsay -l | tail -n +2 | tr " " "\n" | shuf -n1)
 fi
 
 # ne pas historiser cd, ls, bg, fg et clear
