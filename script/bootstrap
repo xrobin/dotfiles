@@ -162,6 +162,7 @@ install_pip () {
         else
             fail "cannot install pip on this system. Try manually or with your package manager (typically python-pip package)"
         fi
+	success "pip installed successfully"
     fi
 }
 
@@ -185,7 +186,7 @@ install_dotfiles () {
 }
 
 install_docopt () {
-    info 'installing docopt'
+    info 'installing docopts'
   
     if hash docopts 2>/dev/null; then
         success "skipped docopts"
@@ -193,6 +194,7 @@ install_docopt () {
         cd $DOTFILES_ROOT/docopts
         try_exec "python setup.py build" "error installing docopts"
         try_install_file $DOTFILES_ROOT/docopts/docopts $HOME/bin/docopts
+	success "docopts installed successfully"
     fi
 }
 
