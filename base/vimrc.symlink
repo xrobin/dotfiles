@@ -6,6 +6,9 @@ filetype on
 filetype plugin on
 filetype indent on
 
+set modelines=5
+set modeline
+
 " Turn on that syntax highlighting
 syntax on
 
@@ -59,3 +62,4 @@ nnoremap <leader><space> :nohlsearch<CR>
 if filereadable(expand("~/.vimrc.local"))
 	source ~/.vimrc.local
 endif
+
