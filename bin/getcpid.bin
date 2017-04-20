@@ -1,0 +1,37 @@
+#!/bin/sh
+
+eval "$(docopts -V - -h - : "$@" <<EOF
+Recursively get the PID of all children of a process
+
+Usage: getcpid [options] <pid>
+
+      --all -a   Also print the parent
+      --verbose  Generate verbose messages.
+      --help     Show help options.
+      --version  Print program version.
+----
+getcpid 0.1.0
+EOF
+)"
+
+# Check for the existence of a process
+# See http://stackoverflow.com/questions/3043978/how-to-check-if-a-process-id-pid-exists
+ps -p "$pid" >/dev/null
+if [ "$?" != 0 ]; then
+        >&2 echo "No process $pid"
+        exit 1
+fi
+
+# List direct children
+cpids=`pgrep -P $pid | xargs`
+
+if $all; then
+	echo "$pid"
+fi
+
+for cpid in $cpids;
+do
+	echo "$cpid"
+	getcpid $cpid
+done
+

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+url=$1
+
+if [[ -z "$url" ]]; then
+	>&2 echo "Usage: $0 <URL>"
+	exit 1
+else
+	out=$(curl -LIfsS -o /dev/null -w %{url_effective} $1) && echo $out
+fi
+
+#if [ $? == 0 ]; then
+#	echo $out
+#else
+#	exit $?
+#fi

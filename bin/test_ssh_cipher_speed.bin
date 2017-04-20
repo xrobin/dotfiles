@@ -1,0 +1,17 @@
+#!/bin/sh
+
+remote_file="$1"
+
+if [ "$remote_file" == "" ] || [ "$2" != "" ] ; then
+	echo "Usage: $0 [user@]host:file"
+	exit 1
+fi
+
+trap "exit" INT # Stop on Ctrl+C, don't just stop the current scp
+
+for try in 1 2 ; do
+	for cipher in `ssh -Q cipher` ; do
+		echo "$cipher"
+		scp -c "$cipher" "$remote_file" /dev/null
+	done
+done

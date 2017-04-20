@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -o pipefail
+set -e
+
+eval "$(docopts -V - -h - : "$@" <<EOF
+Lists (ps-like) the parent processes of <pid>.
+
+Usage: ${0##*/} [options] <pid>
+
+      --help     Show help options.
+      --version  Print program version.
+----
+${0##*/} 0.2.0
+EOF
+)"
+
+get_ppid() {
+	echo $( ( /bin/ps -o ppid $1 || exit 1; ) |tail -n 1)
+}
+
+die() { echo "$@" 1>&2 ; exit 1; }
+
+ps -f $pid | head -n 1 # Show the header of ps
+while [ "$pid" -gt 0 ]; do # No more parent when we reach 0 (the kernel)
+	/bin/ps -f $pid | tail -n +2 # ps current pid and remove header
+	pid=$(get_ppid $pid)
+	if [ ! "$var" -eq "$var" ] 2>/dev/null; then
+		die "Unknown PID"
+		exit 1
+	fi
+done

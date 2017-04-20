@@ -2,7 +2,7 @@
 #
 # bootstrap installs things.
 
-DOTFILES_ROOT="`pwd`"
+DOTFILES_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
 set -e
 
@@ -20,10 +20,30 @@ success () {
   printf "\r\033[2K  [ \033[00;32mOK\033[0m ] $1\n"
 }
 
-fail () {
+soft_fail () {
   printf "\r\033[2K  [\033[0;31mFAIL\033[0m] $1\n"
+}
+
+fail () {
+  soft_fail "$1"
   echo ''
   exit
+}
+
+try_exec () {
+    cmd=$1
+    error_msg=$2
+    set +e
+    e_out=$(eval $1 2>&1 )
+    e_success=$?
+    set -e
+    if [[ $e_success == 0 ]]; then
+        : # continue
+    else
+        soft_fail "$error_msg ($cmd). Full output:"
+        echo "$e_out"
+        exit $e_success
+    fi
 }
 
 setup_gitconfig () {
@@ -48,23 +68,24 @@ setup_gitconfig () {
   fi
 }
 
+pull_submodules () {
+    info 'setup git submodules'
+    cd "$DOTFILES_ROOT"
+    try_exec "git submodule init" "error initializing git submodules"
+    try_exec "git submodule update" "error updating git submodules"
+    success "git submodules up to date"
+}
+
 link_files () {
   ln -s $1 $2
   success "linked $1 to $2"
 }
 
-install_dotfiles () {
-  info 'installing dotfiles'
+try_install_file() {
+    src=$1
+    dst=$2
 
-  overwrite_all=false
-  backup_all=false
-  skip_all=false
-
-  for source in `find $DOTFILES_ROOT -maxdepth 2 -name \*.symlink`
-  do
-    dest="$HOME/.`basename \"${source%.*}\"`"
-
-    if [ -f $dest ] || [ -d $dest ]
+    if [ -f $dst ] || [ -d $dst ]
     then
 
       overwrite=false
@@ -73,7 +94,7 @@ install_dotfiles () {
 
       if [ "$overwrite_all" == "false" ] && [ "$backup_all" == "false" ] && [ "$skip_all" == "false" ]
       then
-        user "File already exists: `basename $source`, what do you want to do? [s]kip, [S]kip all, [o]verwrite, [O]verwrite all, [b]ackup, [B]ackup all?"
+        user "File already exists: `basename ${dst}`, what do you want to do? [s]kip, [S]kip all, [o]verwrite, [O]verwrite all, [b]ackup, [B]ackup all?"
         read -n 1 action
 
         case "$action" in
@@ -96,32 +117,93 @@ install_dotfiles () {
 
       if [ "$overwrite" == "true" ] || [ "$overwrite_all" == "true" ]
       then
-        rm -rf $dest
-        success "removed $dest"
+        rm -rf $dst
+        success "removed $dst"
       fi
 
       if [ "$backup" == "true" ] || [ "$backup_all" == "true" ]
       then
-        mv $dest $dest\.backup
-        success "moved $dest to $dest.backup"
+        mv $dst $dst\.backup
+        success "moved $dst to $dst.backup"
       fi
 
       if [ "$skip" == "false" ] && [ "$skip_all" == "false" ]
       then
-        link_files $source $dest
+        link_files $src $dst
       else
-        success "skipped $source"
+        success "skipped $src"
       fi
 
-    else
-      link_files $source $dest
-    fi
+    elif [ -h "$dst" -a ! -e "$dst"  ] ; then
+      rm "$dst"
+      link_files $src $dst
 
+    else
+      link_files $src $dst
+    fi
+    
+}
+
+install_pip () {
+    info "installing pip"
+
+    if hash pip 2>/dev/null; then
+        success "pip already installed"
+    else
+        if hash easy_install 2>/dev/null; then
+	    # Does easy_install support "--user"?
+	    if ! easy_install --help|grep user>/dev/null; then 
+		# Try with get_pip
+		try_exec "wget https://bootstrap.pypa.io/get-pip.py" "error downloading get-pip.py"
+		try_exec "python get-pip.py --user" "error installing pip with get-pip.py"
+	    else
+	        try_exec "easy_install --user pip" "error installing pip with easy_install"
+	    fi
+        else
+            fail "cannot install pip on this system. Try manually or with your package manager (typically python-pip package)"
+        fi
+	success "pip installed successfully"
+    fi
+}
+
+install_dotfiles () {
+  info 'installing dotfiles'
+
+  overwrite_all=false
+  backup_all=false
+  skip_all=false
+
+  for source in `find $DOTFILES_ROOT -maxdepth 2 -name \*.symlink`
+  do
+      dest="$HOME/.`basename \"${source%.*}\"`"
+      try_install_file "$source" "$dest"
+  done
+  for source in `find $DOTFILES_ROOT/bin -maxdepth 1 -name \*.bin`
+  do
+      dest="$HOME/bin/`basename \"${source%.*}\"`"
+      try_install_file "$source" "$dest"
   done
 }
 
+install_docopt () {
+    info 'installing docopts'
+  
+    if hash docopts 2>/dev/null; then
+        success "skipped docopts"
+    else
+        cd $DOTFILES_ROOT/docopts
+        try_exec "python setup.py build" "error installing docopts"
+        try_install_file $DOTFILES_ROOT/docopts/docopts $HOME/bin/docopts
+	success "docopts installed successfully"
+    fi
+}
+
+install_pip
+pull_submodules
+
 # setup_gitconfig
 install_dotfiles
+install_docopt
 
 # If we're on a Mac, let's install and setup homebrew.
 #if [ "$(uname -s)" == "Darwin" ]
@@ -134,6 +216,7 @@ install_dotfiles
 #    fail "error installing dependencies"
 #  fi
 #fi
+
 
 echo ''
 echo '  All installed!'

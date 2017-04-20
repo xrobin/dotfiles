@@ -13,3 +13,10 @@ function ppgrep() {
 	pgrep "$@" | xargs --no-run-if-empty ps -fp; 
 }
 
+# This function tests if a file is a broken link (returns 0 upon success, 1 if file is not a link, a valid link, or missing)
+broken_link () {
+	if [ -h $1 -a ! -e $1  ]; then 
+		return 0
+	fi
+	return 1
+}
