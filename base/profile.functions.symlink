@@ -20,3 +20,8 @@ broken_link () {
 	fi
 	return 1
 }
+
+# Function to get the folder containing the script running currently
+sd() {
+        echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+}
