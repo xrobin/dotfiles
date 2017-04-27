@@ -28,7 +28,7 @@ do
                 # Email to root
                 (
                         echo "Subject: Alert: $mnt almost out of disk space on $(hostname) - $free ($free_space_report)"
-                        echo "Partition $partition ($mnt) running out of space ($free_space_report_unit) on $(hostname) as on $(date)"
+                        echo "Partition $partition ($mnt) running out of space ($free_space_report) on $(hostname) as on $(date)"
                 ) | sendmail root
 	fi
 done
