@@ -1,0 +1,35 @@
+#!/bin/sh
+# Shell script to monitor or watch the disk space
+# It will send an email to root
+# INSTALLATION: copy to /etc/cron.daily (or other) and make sure the script is executable
+# -------------------------------------------------------------------------
+# Copyright (c) 2005 nixCraft project
+# (c) 2013 Xavier Robin
+# This script is licensed under GNU GPL version 2.0 or above
+# -------------------------------------------------------------------------
+# This script is part of nixCraft shell script collection (NSSC)
+# Visit http://bash.cyberciti.biz/ for more information.
+# ----------------------------------------------------------------------
+# Linux shell script to watch disk space (should work on other UNIX oses )
+# SEE URL: http://www.cyberciti.biz/tips/shell-script-to-watch-the-disk-space.html
+
+# set alert level 20G on /
+ALERT=20
+UNIT=G
+PARTITION=/dev/md126p2
+
+df -B$UNIT | grep "^$PARTITION" |
+while read partition size used free perc mnt ;
+do
+	free_space=$(echo $free | tr -d $UNIT )
+	if [ $free_space -le $ALERT ]; then
+                # Get the free space in human-readable unit
+                free_space_report=$(df -Bh /dev/xvm-16|tail -n +2|awk '{print $4}')
+                # Email to root
+                (
+                        echo "Subject: Alert: $mnt almost out of disk space on $(hostname) - $free ($free_space_report)"
+                        echo "Partition $partition ($mnt) running out of space ($free_space_report_unit) on $(hostname) as on $(date)"
+                ) | sendmail root
+	fi
+done
+
