@@ -509,8 +509,9 @@ mcsapply <- function (X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE) {
 #' object.sizes() # Global env
 #' object.sizes(baseenv(), "Kb") # package:base
 #' @seealso pryr::mem_used, utils::object.size (which this function uses)
+#' @importFrom utils object.size
 object.sizes <- function(envir = .GlobalEnv, units = "auto", total = TRUE) {
-	sizes <- sapply(ls(envir = envir), function(x) object.size(get(x, envir = envir)), simplify = FALSE)
+	sizes <- sapply(ls(envir = envir), function(x) utils::object.size(get(x, envir = envir)), simplify = FALSE)
 	formatted.sizes <- sapply(sizes, format, units = units)[order(unlist(sizes))]
 	if (total) {
 		formatted.sizes <- c(formatted.sizes, total = format(Reduce("+", sizes), units = units))
