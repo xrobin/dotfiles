@@ -45,6 +45,8 @@ if (interactive()) {
 	
 	# attach R/functions.R in a new environment called UserFunctions
 	sys.source("~/.Rfunctions.R", env=attach(NULL, name="UserFunctions"), keep.source=TRUE)
+	# To refresh the functions if .Rfunctions.R is edited while a session is running, 
+	# run sys.source("~/.Rfunctions.R", env=as.environment("UserFunctions"), keep.source=TRUE)
 	
 	# set a CRAN mirror
 # Don't set r.forge, it's a mess of unstable builds! 
