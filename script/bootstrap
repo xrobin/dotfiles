@@ -150,17 +150,16 @@ install_pip () {
     if hash pip 2>/dev/null; then
         success "pip already installed"
     else
-        if hash easy_install 2>/dev/null; then
-	    # Does easy_install support "--user"?
-	    if ! easy_install --help|grep user>/dev/null; then 
+        if hash easy_install 2>/dev/null && easy_install --help|grep user>/dev/null; then
+	                                    # Does easy_install support "--user"?
+		try_exec "easy_install --user pip" "error installing pip with easy_install"
+	elif hash wget 2>/dev/null && hash python 2>/dev/null; then
 		# Try with get_pip
 		try_exec "wget https://bootstrap.pypa.io/get-pip.py" "error downloading get-pip.py"
 		try_exec "python get-pip.py --user" "error installing pip with get-pip.py"
-	    else
-	        try_exec "easy_install --user pip" "error installing pip with easy_install"
-	    fi
-        else
-            fail "cannot install pip on this system. Try manually or with your package manager (typically python-pip package)"
+		try_exec "rm get-pip.py" "error cleaning up get-pip.py"
+	else
+		fail "cannot install pip on this system: missing wget and python. Try manually or with your package manager (typically python-pip package)"
         fi
 	success "pip installed successfully"
     fi
