@@ -497,3 +497,35 @@ mcsapply <- function (X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE) {
     simplify2array(answer, higher = (simplify == "array"))
   else answer
 }
+
+
+
+#' Report the Space Allocated for Objects in an Environment
+#' Provides an estimate of the memory that is being used to store all R objects in an environment
+#' @param envir the environment to test
+#' @param units the unit in which to display the results
+#' @return a named vector of object sizes, sorted by increasing size
+#' @examples 
+#' object.sizes() # Global env
+#' object.sizes(baseenv(), "Kb") # package:base
+#' @seealso pryr::mem_used, utils::object.size (which this function uses)
+#' @importFrom utils object.size
+object.sizes <- function(envir = .GlobalEnv, units = "auto", total = TRUE) {
+	sizes <- sapply(ls(envir = envir), function(x) utils::object.size(get(x, envir = envir)), simplify = FALSE)
+	formatted.sizes <- sapply(sizes, format, units = units)[order(unlist(sizes))]
+	if (total) {
+		formatted.sizes <- c(formatted.sizes, total = format(Reduce("+", sizes), units = units))
+	}
+	return(formatted.sizes)
+}
+
+
+#' Creates a high-res (2000x2000, 300dpi) PNG device
+#' @description The dimensions and resolution are tuned to match the defaults from \code{\link{png}}. 
+#' This means that the plots will look exactly identical, except with a higher definition
+#' @param filename,width,height,res parameters for \code{\link{png}}
+#' @param ... additional parameters passed to \code{\link{png}}
+png.hires <- function(filename = "Rplot%03d.png", width = 2000, height = 2000, res = 300, ...) {
+	png(filename, width, height, res = res, ...)
+}
+

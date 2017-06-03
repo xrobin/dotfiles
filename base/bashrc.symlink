@@ -207,7 +207,7 @@ fi
 
 # Sends an email alert. Useful to run after long commands
 # Ex: some_long_command; mail_alert "some_long_command finished"
-if hash sendmail 2>/dev/null; then
+if hash mailx 2>/dev/null; then
 	function mail_alert {
 	        last_exit=$?
 	        MSG=$1
@@ -218,9 +218,25 @@ if hash sendmail 2>/dev/null; then
 		                MSG=`basename "$0"`
 			fi
 	        fi
-	
-	        echo -e "Subject: $MSG\n\nCommand returned ${last_exit}." | sendmail xavier
+		echo "Command returned ${last_exit} on $(hostname)." | mailx -s "$MSG" xavier
 	}
+elif hash sendmail 2>/dev/null; then
+	function mail_alert {
+	        last_exit=$?
+	        MSG=$1
+	        if [ "$MSG" == "" ]; then
+			if [ "$0" == "-bash" ]; then
+				MSG="mail_alert"
+			else
+		                MSG=`basename "$0"`
+			fi
+	        fi
+	        echo -e "Subject: $MSG\n\nCommand returned ${last_exit} on $(hostname)." | sendmail xavier
+	}
+else
+	echo "Sendmail/mailx not installed, mail_alert unavailable."
+	# Suggest install command on Ubuntu/Debian
+	( lsb_release -a 2>/dev/null| grep "\(Ubuntu\|Debian\)" >/dev/null ) && echo "Install sendmail with sudo apt-get install sendmail-bin and log in again to enable mail_alert."
 fi
 
 
