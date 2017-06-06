@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Optional check of the arguments with docopt and print help/version if needed.
+# We use $@ directly later on.
+if hash docopts>/dev/null; then
+eval "$(docopts -V - -h - : "$@" <<EOF
+Verbose cat displaying file name on STDERR
+
+Usage: vcat [options] [--] <FILE>...
+
+Options (all standard cat options, please check man cat to confirm):
+  -A, --show-all           equivalent to -vET
+  -b, --number-nonblank    number nonempty output lines, overrides -n
+  -e                       equivalent to -vE
+  -E, --show-ends          display $ at end of each line
+  -n, --number             number all output lines
+  -s, --squeeze-blank      suppress repeated empty output lines
+  -t                       equivalent to -vT
+  -T, --show-tabs          display TAB characters as ^I
+  -u                       (ignored)
+  -v, --show-nonprinting   use ^ and M- notation, except for LFD and TAB
+      --help     display this help and exit
+      --version  output version information and exit
+
+----
+vcat 0.1
+Copyright (C) 2017 Xavier Robin
+License GPL 3+
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+EOF
+)"
+fi
+
+arglist=""
+#filelist=""
+declare -a filelist
+argend=false
+# Detect arguments and files
+for arg in "$@"; do
+	if [[ $arg == "--" ]]; then
+		argend=true
+	elif [[ $arg == "-" ]]; then
+		>&2 echo "vcat: Reading from STDIN (-) not supported."
+		exit 1
+	elif [[ $arg =~ ^-.+  &&  $argend == false ]]; then
+		arglist="$arglist $arg"
+	else
+		filelist=("${filelist[@]}" "$arg")
+		#filelist="$filelist $arg"
+	fi
+done
+
+# Loop over the files
+for file in "${filelist[@]}"; do
+	>&2 echo "$file"
+	cat $arglist -- "$file"
+done
