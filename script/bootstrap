@@ -177,6 +177,9 @@ install_dotfiles () {
       dest="$HOME/.`basename \"${source%.*}\"`"
       try_install_file "$source" "$dest"
   done
+  if [ ! -e bin ]; then
+  	try_exec "mkdir -p $HOME/bin" "bin folder created"
+  fi
   for source in `find $DOTFILES_ROOT/bin -maxdepth 1 -name \*.bin`
   do
       dest="$HOME/bin/`basename \"${source%.*}\"`"
