@@ -40,5 +40,5 @@ fi
 alias rblcheck='rblcheck -s httpbl.abuse.ch -s apache.bl.blocklist.de -s bruteforcelogin.bl.blocklist.de -s bl.blocklist.de -s all.bl.blocklist.de -s ftp.bl.blocklist.de -s imap.bl.blocklist.de -s mail.bl.blocklist.de -s ssh.bl.blocklist.de -s sip.bl.blocklist.de'
 
 # Youtube-dl common formats
-alias youtube-dl-webm='youtube-dl -f "bestvideo[ext=webm]+bestaudio[ext=webm]"'
-alias youtube-dl-mp4='youtube-dl -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]"'
+alias youtube-dl-webm='youtube-dl -f "bestvideo[ext=webm]+bestaudio[ext=webm]" --all-subs'
+alias youtube-dl-mp4='youtube-dl -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" --all-subs'
