@@ -1,0 +1,28 @@
+#!/bin/bash
+
+function max() {
+	echo $(( $1 > $2 ? $1 : $2 ))
+}
+
+if [ "$#" -ne 1 ]; then
+	global_return=0
+	# Set trap to exit immediately upon Ctrl+C
+	# Otherwise only the child check_ffmpeg aborts and the loop continues
+	trap "exit 130" SIGINT
+	for file in "$@"; do
+		echo -n "$file":
+		check_ffmpeg "$file"
+		ret_code=$?
+		if [ "$ret_code" -eq 0 ]; then
+			echo " OK"
+		else
+			echo " $ret_code"
+			# Max of return code
+			global_return=$(max $global_return $ret_code)
+		fi
+	done
+	exit $global_return
+else
+	ffmpeg -v error -i "$1" -f null -
+fi       
+
