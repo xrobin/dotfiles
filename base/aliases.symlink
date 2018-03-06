@@ -47,3 +47,8 @@ alias youtube-dl-mp4='youtube-dl -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" --al
 if [ -f ~/share/sounds/owin31-tada.wav ]; then
 	alias alert="paplay ~/share/sounds/owin31-tada.wav"
 fi
+
+# Hide ffmpeg banner
+alias ffmpeg='ffmpeg -hide_banner'
+alias ffplay='ffplay -hide_banner'
+alias ffprobe='ffprobe -hide_banner'
