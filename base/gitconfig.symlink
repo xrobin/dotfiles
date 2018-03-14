@@ -4,6 +4,7 @@
 
         name = Xavier Robin
         email = xavalias-github@xavier.robin.name
+	signingkey = 34E31139A3AD30E5
 [credential]
         # helper = GIT_CREDENTIAL_HELPER
 [alias]
