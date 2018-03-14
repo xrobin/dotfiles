@@ -207,9 +207,9 @@ install_trash () {
     if hash trash 2>/dev/null; then
         success "skipped trash-cli"
     else
-        cd $DOTFILES_ROOT/trash
 	try_exec "git clone https://github.com/andreafrancia/trash-cli.git" "error getting trash-cli from GitHub"
         try_exec "cd trash-cli && python setup.py install --user" "error installing trash-cli"
+	try_exec "rm -rf trash-cli" "error cleaning up trash-cli"
         #try_install_file $DOTFILES_ROOT/docopts/docopts $HOME/bin/docopts
 	success "trash-cli installed successfully"
     fi
