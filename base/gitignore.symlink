@@ -2,3 +2,6 @@
 .DS_Store
 # Remove Eclipse (not-so-)temp files:
 ._*
+.settings/org.eclipse.core.resources.prefs
+.project
+.pydevproject
