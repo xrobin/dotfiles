@@ -52,3 +52,9 @@ fi
 alias ffmpeg='ffmpeg -hide_banner'
 alias ffplay='ffplay -hide_banner'
 alias ffprobe='ffprobe -hide_banner'
+
+# shred vs srm
+if ! hash srm 2>/dev/null
+then
+	alias srm='shred -u'
+fi
