@@ -143,7 +143,7 @@ if hash nproc 2>/dev/null; then
 fi
 
 #/home/xavier/.showcow
-[[ -f "/home/xavier/.config/autopackage/paths-bash" ]] && . "/home/xavier/.config/autopackage/paths-bash"
+[[ -f "$HOME/.config/autopackage/paths-bash" ]] && . "$HOME/.config/autopackage/paths-bash"
 
 export RUBYOPT=-rubygems
 
@@ -218,7 +218,7 @@ if hash mailx 2>/dev/null; then
 		                MSG=`basename "$0"`
 			fi
 	        fi
-		echo "Command returned ${last_exit} on $(hostname)." | mailx -s "$MSG" xavier
+		echo "Command returned ${last_exit} on $(hostname)." | mailx -s "$MSG" "$USER"
 	}
 elif hash sendmail 2>/dev/null; then
 	function mail_alert {
@@ -231,7 +231,7 @@ elif hash sendmail 2>/dev/null; then
 		                MSG=`basename "$0"`
 			fi
 	        fi
-	        echo -e "Subject: $MSG\n\nCommand returned ${last_exit} on $(hostname)." | sendmail xavier
+	        echo -e "Subject: $MSG\n\nCommand returned ${last_exit} on $(hostname)." | sendmail "$USER"
 	}
 else
 	echo "Sendmail/mailx not installed, mail_alert unavailable."
