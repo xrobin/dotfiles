@@ -3,7 +3,7 @@ alias ssdu='sudo du --si --max-depth=1'
 alias l='ls -CF'
 alias ll='ls -l --si'
 alias la='ls -A'
-alias lal='ls -al --si'
+alias lal='ls -Al --si'
 alias df='df --si'
 
 # Some shortcuts to Mac apps for the command line:
