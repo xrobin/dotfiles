@@ -194,6 +194,12 @@ fi
 #set -o physical
 #set -o interactive-comments
 
+# .* matches . and .. by default
+# This creates issue with mv and lists parent folder with ls .* 
+# This behavior can be changed <https://superuser.com/questions/178633/can-i-keep-and-out-of-expansion>
+GLOBIGNORE=.
+shopt -u dotglob
+
 # Google Compute servers have very complicated names
 if [[ $HOST =~ lindinglab-.+-opensuse-13-[0-9] ]]; then 
        	export HOST=`echo $HOST | sed 's/lindinglab-\(.\+\)-opensuse-13-[[:digit:]]/\1/'`;
