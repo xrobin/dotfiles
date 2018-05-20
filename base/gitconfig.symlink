@@ -40,3 +40,5 @@
 	default = simple
 [include]
 	path = .gitconfig.local
+[commit]
+	gpgSign = true
