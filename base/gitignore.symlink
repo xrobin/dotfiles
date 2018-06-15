@@ -5,4 +5,5 @@
 .settings/org.eclipse.core.resources.prefs
 .project
 .pydevproject
+.idea/
 last.dump.rda
