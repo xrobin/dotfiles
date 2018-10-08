@@ -55,13 +55,24 @@ fi
 #    ;;
 #esac
 
-PS1_STATUS_PART='(`echo $?`$([[ $DATE_PROMPT == true ]] && echo ": "`date +%Y-%m-%d:%H:%M:%S`))${debian_chroot:+($debian_chroot)}'
+last_status_color=$'\033[0;37m'
+update_status_color(){
+	es=$?
+	if [ $es -eq 0 ]; then
+		last_status_color=$'\033[0;37m'
+	else
+		last_status_color=$'\033[1;31m'
+	fi
+}
+
+PS1_STATUS_PART='`echo $?`$([[ $DATE_PROMPT == true ]] && echo ": "`date +%Y-%m-%d:%H:%M:%S`)${debian_chroot:+($debian_chroot)}'
 # Comment in the above and uncomment this below for a color prompt
 #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;30m\]\u@\h\[\033[0;34m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] '
 #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\u@\h\[\033[0;37m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] '
 # Add the date in the prompt if DATE_PROMPT=true:
-PS1="\[\033[0;37m\]$PS1_STATUS_PART\[\033[1;34m\]\u\[\033[0;37m\]@\[\033[01;34m\]\h\[\033[0;37m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] "
+#PS1="\[\033[0;37m\]"'$(get_exit_status)'"\[\033[1;34m\]\u\[\033[0;37m\]@\[\033[01;34m\]\h\[\033[0;37m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] "
+PS1="\[\033[0;37m\](\[$last_status_color\]$PS1_STATUS_PART\[\033[0;37m\])\[\033[1;34m\]\u\[\033[0;37m\]@\[\033[01;34m\]\h\[\033[0;37m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] "
 
 # Change the prompt color when logged on an other machine
 if [[ "$SSH_CONNECTION" != "" ]]
@@ -85,7 +96,7 @@ fi
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
 xterm*|rxvt*)
-	PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007"; history -a'
+	PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007"; history -a; update_status_color'
     ;;
 *)
 	PROMPT_COMMAND='history -a'
