@@ -3,7 +3,7 @@ uname=$(uname)
 
 # For an explanation of .bashrc, .bash_profile and .profile, see http://superuser.com/questions/789448/choosing-between-bashrc-profile-bash-profile-etc
 # In short: environment variables go to .profile, all shell-specific stuff in .bashrc.
-export PATH=~/bin:~/local/bin:~/.local/bin:$PATH:/sbin:/usr/sbin
+export PATH=~/bin:~/local/bin:$PATH:/sbin:/usr/sbin
 export R_LIBS_USER=~/R/library/:/opt/R/lib:/home/people/xavier/R/lib
 
 #export MOZ_NO_REMOTE=1
@@ -25,6 +25,14 @@ export HOSTALIASES=~/.hosts
 
 # Gloud compute needs pyhon 2.7 
 export CLOUDSDK_PYTHON=`which python2 2>/dev/null`
+
+# Use ~/.local
+export PATH=~/.local/bin:$PATH
+export LD_LIBRARY_PATH=~/.local/lib:~/.local/lib64:$LD_LIBRARY_PATH
+export CPPFLAGS="-I$HOME/.local/include $CPPFLAGS"
+export LDFLAGS="-L$HOME/.local/lib -L$HOME/.local/lib64 $LDFLAGS"
+export PKG_CONFIG_PATH=~/.local/share/pkgconfig/:~/.local/lib/pkgconfig/:~/.local/lib64/pkgconfig/:$PKG_CONFIG_PATH
+export MANPATH=~/.local/man:~/.local/share/man:$MANPATH
 
 # Use man pages in .local
 export MANPATH=~/local/man:~/local/share/man:$MANPATH
