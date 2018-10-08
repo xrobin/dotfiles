@@ -31,6 +31,10 @@ fi
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
 
+# Expands variables to directories
+# This prevents $HOME/<TAB> from becoming \$HOME/
+shopt -s direxpand
+
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
 
