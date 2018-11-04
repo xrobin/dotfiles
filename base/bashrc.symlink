@@ -55,40 +55,49 @@ fi
 #    ;;
 #esac
 
+
+ERROR_COLOR="\033[1;31m" # red
+STATUS_COLOR="\033[0;37m" # grey
 show_status_in_color(){
     es=$?
+    echo -ne "$STATUS_COLOR("
     if [ $es -eq 0 ]; then
-            echo "$es"
+            echo -ne "$STATUS_COLOR$es"
         else
-          echo -e "\033[1;31m$es"
+          echo -ne "$ERROR_COLOR$es$STATUS_COLOR"
         fi
+    [[ $DATE_PROMPT == true ]] && echo -n ": "`date +%Y-%m-%d:%H:%M:%S`
+    echo -n ${debian_chroot:+($debian_chroot)}
+    echo -ne "$STATUS_COLOR)"
 }
 
-PS1_STATUS_PART='$(show_status_in_color)$([[ $DATE_PROMPT == true ]] && echo ": "`date +%Y-%m-%d:%H:%M:%S`)${debian_chroot:+($debian_chroot)}'
+# PS1_STATUS_PART='\[\033[0;37m\]($(show_status_in_color)\[\033[0;37m\])'
 # Comment in the above and uncomment this below for a color prompt
 #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;30m\]\u@\h\[\033[0;34m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] '
 #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\u@\h\[\033[0;37m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] '
 # Add the date in the prompt if DATE_PROMPT=true:
 #PS1="\[\033[0;37m\]"'$(get_exit_status)'"\[\033[1;34m\]\u\[\033[0;37m\]@\[\033[01;34m\]\h\[\033[0;37m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] "
-PS1="\[\033[0;37m\]($PS1_STATUS_PART\[\033[0;37m\])\[\033[1;34m\]\u\[\033[0;37m\]@\[\033[01;34m\]\h\[\033[0;37m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] "
+PS1='$(show_status_in_color)\[\033[1;34m\]\u\[\033[0;37m\]@\[\033[01;34m\]\h\[\033[0;37m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] '
 
 # Change the prompt color when logged on an other machine
 if [[ "$SSH_CONNECTION" != "" ]]
 then
-	PS1="\[\033[0;37m\]$PS1_STATUS_PART\\[\033[01;32m\]\u\[\033[01;30m\]@\[\033[01;35m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+	PS1='$(show_status_in_color)\[\033[01;32m\]\u\[\033[01;30m\]@\[\033[01;35m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 fi
 
 if [[ ! -z "$PBS_JOBID" ]]
 then
 	echo "In PBS job '$PBS_JOBID'"
-	PS1="\[\033[0;47m\]$PS1_STATUS_PART\[\033[48;5;10m\]\u\[\033[47m\]\[\033[30m\]@\[\033[48;5;13m\]\h\[\033[47m\]\[\033[30m\]:\[\033[48;5;14m\]\w\[\033[47m\]\[\033[30m\]\$\[$(tput sgr0)\] "
+	PS1='$(show_status_in_color)\[\033[48;5;10m\]\u\[\033[47m\]\[\033[30m\]@\[\033[48;5;13m\]\h\[\033[47m\]\[\033[30m\]:\[\033[48;5;14m\]\w\[\033[47m\]\[\033[30m\]\$\[$(tput sgr0)\] '
 fi
 
 # Red prompt for root
 if [[ $UID == 0 ]]
 then
-	PS1="\[\033[0;37m\]$PS1_STATUS_PART\[\033[01;31m\]\u@\h:\w# \[\033[00m\]"
+	STATUS_COLOR="\033[1;31m"
+	ERROR_COLOR="\033[1;35m" # purple
+	PS1='$(show_status_in_color)\[\033[01;31m\]\u@\h:\w# \[\033[00m\]'
 fi
 
 
