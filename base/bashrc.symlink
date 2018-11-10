@@ -49,7 +49,7 @@ STATUS_COLOR="\033[0;37m" # grey
 
 update_status_in_color(){
     es=$?
-    PS1="\[$STATUS_COLOR(\]"
+    PS1="\[$STATUS_COLOR\]("
     if [ $es -eq 0 ]; then
         PS1="${PS1}\[$STATUS_COLOR\]$es"
     else
