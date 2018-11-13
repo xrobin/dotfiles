@@ -42,3 +42,5 @@
 	path = .gitconfig.local
 [commit]
 	gpgSign = true
+[gpg]
+	program = gpg2
