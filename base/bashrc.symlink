@@ -252,6 +252,11 @@ else
 	( lsb_release -a 2>/dev/null| grep "\(Ubuntu\|Debian\)" >/dev/null ) && echo "Install sendmail with sudo apt-get install sendmail-bin and log in again to enable mail_alert."
 fi
 
+# Enable gpg asking for password over ssh/screen sessions
+# This is needed when git committing with -S (sign)
+# https://superuser.com/questions/739215/gpg-with-gpg-agent-never-asks-for-passphrase
+export GPG_TTY=$(tty)
+
 
 # Remember if the file was read already
 _READ_BASHRC=$$
