@@ -59,6 +59,11 @@ update_status_in_color(){
     PS1="${PS1}${debian_chroot:+($debian_chroot)}"
     PS1="${PS1}\[$STATUS_COLOR\])"
     PS1="$PS1$PS1_STATIC_PART"
+
+    # virtualenv
+    if [ -n "$VIRTUAL_ENV" ]; then
+        PS1="($(basename $VIRTUAL_ENV)) $PS1"
+    fi
 }
 
 # Red prompt for root
