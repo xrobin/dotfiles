@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -euo pipefail
+
+PUSHBULLET_TOKEN=$(<~/.pushbullet)
+
+#curl --header "Access-Token: $PUSHBULLET_TOKEN" \
+#     https://api.pushbullet.com/v2/users/me
+
+
+curl --silent -u """$PUSHBULLET_TOKEN"":" -d type="note" -d body="$1" -d title="Note from $USER@$(hostname)" 'https://api.pushbullet.com/v2/pushes' >/dev/null
