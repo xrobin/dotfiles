@@ -45,6 +45,7 @@ fi
 
 
 ERROR_COLOR="\033[1;31m" # red
+GIT_COLOR="\033[0;33m" # red
 STATUS_COLOR="\033[0;37m" # grey
 
 update_status_in_color(){
@@ -55,10 +56,17 @@ update_status_in_color(){
     else
         PS1="${PS1}\[$ERROR_COLOR\]$es\[$STATUS_COLOR\]"
     fi
+
     [[ $DATE_PROMPT == true ]] && PS1="${PS1}: "`date +%Y-%m-%d:%H:%M:%S`
     PS1="${PS1}${debian_chroot:+($debian_chroot)}"
     PS1="${PS1}\[$STATUS_COLOR\])"
-    PS1="$PS1$PS1_STATIC_PART"
+
+    git_branch=$(git branch 2>/dev/null | grep "*" | sed 's/*\s\+//')
+    if [ -n "$git_branch" ]; then
+        PS1="${PS1}\[$GIT_COLOR\][$git_branch]\[$STATUS_COLOR\]"
+    fi
+
+    PS1="$PS1$PS1_STATIC_PART\033[0m"
 
     # virtualenv
     if [ -n "$VIRTUAL_ENV" ]; then
