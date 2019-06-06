@@ -70,7 +70,7 @@ if (interactive()) {
 	# setup printers
 	#options(printer="HP LaserJet 2300 Series PS (NB 9036)")
 	options(color.printer="Canon-iR-ADV-C5045")
-	options(printers=suppressWarnings(system("which lpstat > /dev/null && lpstat -a 2>/dev/null | grep -o '^[^ ]\\+'", intern=T)))
+	options(printers=suppressWarnings(system("which lpstat > /dev/null 2>&1 && lpstat -a 2>/dev/null | grep -o '^[^ ]\\+'", intern=T)))
 	#options(device=function(...) {
 	#	if (length(system("ps -ef|grep compiz", TRUE)) == 4)
 	#		CairoX11(...)
