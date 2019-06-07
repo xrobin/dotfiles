@@ -66,7 +66,7 @@ update_status_in_color(){
         PS1="${PS1}\[$GIT_COLOR\][$git_branch]\[$STATUS_COLOR\]"
     fi
 
-    PS1="$PS1$PS1_STATIC_PART\033[0m"
+    PS1="$PS1$PS1_STATIC_PART\[\033[0m\]"
 
     # virtualenv
     if [ -n "$VIRTUAL_ENV" ]; then
