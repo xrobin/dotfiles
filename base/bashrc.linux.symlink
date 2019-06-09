@@ -1,5 +1,5 @@
 # Run on mac only
-[ `uname -o` != "GNU/Linux" ] && return
+[ "$(uname -o 2>/dev/null)" != "GNU/Linux" ] && return
 
 # What CPU are we running with?
 CPU_STRING=$(grep "model name" /proc/cpuinfo|sed 's/model name\s\+:\s\+//' | sort -n| uniq -c)
