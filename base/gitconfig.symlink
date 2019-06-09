@@ -38,8 +38,6 @@
         #
         # Setting to git 2.0 default to surpress warning message
 	default = simple
-[include]
-	path = .gitconfig.local
 [commit]
 	gpgSign = true
 [gpg]
@@ -49,3 +47,6 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[include]
+	path = .gitconfig.local
+	path = .gitconfig.mac
