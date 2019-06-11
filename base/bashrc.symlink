@@ -67,6 +67,16 @@ BPurple="\[\033[1;35m\]"      # Purple
 BCyan="\[\033[1;36m\]"        # Cyan
 BWhite="\[\033[1;37m\]"       # White
 
+# Dim
+DBlack="\[\033[2;30m\]"       # Black
+DRed="\[\033[2;31m\]"         # Red
+DGreen="\[\033[2;32m\]"       # Green
+DYellow="\[\033[2;33m\]"      # Yellow
+DBlue="\[\033[2;34m\]"        # Blue
+DPurple="\[\033[2;35m\]"      # Purple
+DCyan="\[\033[2;36m\]"        # Cyan
+DWhite="\[\033[2;37m\]"       # White
+
 # Underline
 UBlack="\[\033[4;30m\]"       # Black
 URed="\[\033[4;31m\]"         # Red
