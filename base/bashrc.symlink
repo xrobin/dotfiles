@@ -199,8 +199,7 @@ elif [[ "$SSH_CONNECTION" != "" ]]; then
     PS1_STATIC_PART="${BGreen}\u${BBlack}@${BPurple}\h${BBlack}:${BBlue}\w$GIT_COLOR\$(parse_git_branch)${Black}\$${Color_Off} "
 # Normal session
 else
-    #PS1_STATIC_PART="\[$BLUE\]\u\[$GREY2\]@\[$BLUE\]\h\[$GREY2\]:\[$GREEN\]\w\[$GIT_COLOR\]\$(parse_git_branch)\[$BLACK\]\$ "
-    PS1_STATIC_PART="${BBlue}\u${$White}@${BBlue}\h${WHITE}:${BGreen}\w${GIT_COLOR}\$(parse_git_branch)${Black}\$${Color_Off} "
+    PS1_STATIC_PART="${BBlue}\u${White}@${BBlue}\h${White}:${Green}\w${GIT_COLOR}\$(parse_git_branch)${White}\$${Color_Off} "
 fi
 
 
