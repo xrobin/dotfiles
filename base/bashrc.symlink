@@ -117,8 +117,6 @@ On_IPurple="\[\033[10;95m\]"  # Purple
 On_ICyan="\[\033[0;106m\]"    # Cyan
 On_IWhite="\[\033[0;107m\]"   # White
 
-
-
 BLACK="\[\e[00;30m\]"
 DARY_GRAY="\[\e[01;30m\]"
 RED="\[\e[00;31m\]"
@@ -137,19 +135,6 @@ LIGHT_GRAY="\[\e[00;37m\]"
 WHITE="\[\e[01;37m\]"
 ENDCOLOR="\e[m"
 
-#BLACK="\033[00m"
-#BLUE="\033[01;34m"
-#GREEN="\033[01;32m"
-#GREY="\033[01;30m"
-#GREY2="\033[0;37m"
-#PURPLE="\033[01;35m"
-#RED="\033[01;31m"
-#YELLOW="\033[0;33m"
-
-ERROR_COLOR="$BRed" #"\033[1;31m" # red
-GIT_COLOR="$Yellow" #"\033[0;33m" # yellow
-STATUS_COLOR="$White" #"$GREY2" #"\033[0;37m" # grey
-
 update_status_in_color(){
     es=$?
     PS1="$STATUS_COLOR("
@@ -163,11 +148,6 @@ update_status_in_color(){
     PS1="${PS1}${debian_chroot:+($debian_chroot)}"
     PS1="${PS1}${STATUS_COLOR})"
 
-    #git_branch=$(git branch 2>/dev/null | grep "*" | sed 's/*\s\+//')
-    #if [ -n "$git_branch" ]; then
-    #    PS1="${PS1}\[$GIT_COLOR\][$git_branch]\[$STATUS_COLOR\]"
-    #fi
-
     PS1="$PS1$PS1_STATIC_PART"
 
     # virtualenv
@@ -179,11 +159,12 @@ update_status_in_color(){
 parse_git_branch() {
     git_branch=$(git branch 2>/dev/null | grep "*" | sed 's/*\s\+//')
     if [ -n "$git_branch" ]; then
-        #PS1="${PS1}\[$GIT_COLOR\][$git_branch]\[$STATUS_COLOR\]"
-        #echo "\[$GIT_COLOR\][$git_branch]\[$STATUS_COLOR\]"
         echo "[$git_branch]"
     fi
 }
+
+ERROR_COLOR="$BRed" #"\033[1;31m" # red
+STATUS_COLOR="$White" #"$GREY2" #"\033[0;37m" # grey
 
 # Red prompt for root
 if [[ $UID == 0 ]]; then 
@@ -193,16 +174,14 @@ if [[ $UID == 0 ]]; then
 # In interactive PBS job
 elif [[ ! -z "$PBS_JOBID" ]]; then 
 	echo "In PBS job '$PBS_JOBID'"
-    PS1_STATIC_PART='\[\033[48;5;10m\]\u\[\033[47m\]\[\033[30m\]@\[\033[48;5;13m\]\h\[\033[47m\]\[\033[30m\]:\[\033[48;5;14m\]\w[$GIT_COLOR\]\$(parse_git_branch)\[\033[30m\]\$\[$(tput sgr0)\] '
+    PS1_STATIC_PART='\[\033[48;5;10m\]\u\[\033[47m\]\[\033[30m\]@\[\033[48;5;13m\]\h\[\033[47m\]\[\033[30m\]:\[\033[48;5;14m\]\w[${Yellow}\$(parse_git_branch)\[\033[30m\]\$\[$(tput sgr0)\] '
 # remote SSH session
 elif [[ "$SSH_CONNECTION" != "" ]]; then
-    PS1_STATIC_PART="${BGreen}\u${BBlack}@${BPurple}\h${BBlack}:${BBlue}\w$GIT_COLOR\$(parse_git_branch)${Black}\$${Color_Off} "
+    PS1_STATIC_PART="${BGreen}\u${BBlack}@${BPurple}\h${BBlack}:${BBlue}\w${Yellow}\$(parse_git_branch)${Black}\$${Color_Off} "
 # Normal session
 else
-    PS1_STATIC_PART="${BBlue}\u${White}@${BBlue}\h${White}:${Green}\w${GIT_COLOR}\$(parse_git_branch)${White}\$${Color_Off} "
+    PS1_STATIC_PART="${BBlue}\u${White}@${BBlue}\h${White}:${Green}\w${Yellow}\$(parse_git_branch)${White}\$${Color_Off} "
 fi
-
-
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
