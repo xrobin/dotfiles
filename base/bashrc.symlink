@@ -43,30 +43,132 @@ if [ -z "$debian_chroot" -a -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
+#### DEFINE TERM COLORS 
+# Reset
+Color_Off="\[\033[0m\]"       # Text Reset
 
-ERROR_COLOR="\033[1;31m" # red
-GIT_COLOR="\033[0;33m" # red
-STATUS_COLOR="\033[0;37m" # grey
+# Regular Colors
+Black="\[\033[0;30m\]"        # Black
+Red="\[\033[0;31m\]"          # Red
+Green="\[\033[0;32m\]"        # Green
+Yellow="\[\033[0;33m\]"       # Yellow
+Blue="\[\033[0;34m\]"         # Blue
+Purple="\[\033[0;35m\]"       # Purple
+Cyan="\[\033[0;36m\]"         # Cyan
+White="\[\033[0;37m\]"        # White
+
+# Bold
+BBlack="\[\033[1;30m\]"       # Black
+BRed="\[\033[1;31m\]"         # Red
+BGreen="\[\033[1;32m\]"       # Green
+BYellow="\[\033[1;33m\]"      # Yellow
+BBlue="\[\033[1;34m\]"        # Blue
+BPurple="\[\033[1;35m\]"      # Purple
+BCyan="\[\033[1;36m\]"        # Cyan
+BWhite="\[\033[1;37m\]"       # White
+
+# Underline
+UBlack="\[\033[4;30m\]"       # Black
+URed="\[\033[4;31m\]"         # Red
+UGreen="\[\033[4;32m\]"       # Green
+UYellow="\[\033[4;33m\]"      # Yellow
+UBlue="\[\033[4;34m\]"        # Blue
+UPurple="\[\033[4;35m\]"      # Purple
+UCyan="\[\033[4;36m\]"        # Cyan
+UWhite="\[\033[4;37m\]"       # White
+
+# Background
+On_Black="\[\033[40m\]"       # Black
+On_Red="\[\033[41m\]"         # Red
+On_Green="\[\033[42m\]"       # Green
+On_Yellow="\[\033[43m\]"      # Yellow
+On_Blue="\[\033[44m\]"        # Blue
+On_Purple="\[\033[45m\]"      # Purple
+On_Cyan="\[\033[46m\]"        # Cyan
+On_White="\[\033[47m\]"       # White
+
+# High Intensty
+IBlack="\[\033[0;90m\]"       # Black
+IRed="\[\033[0;91m\]"         # Red
+IGreen="\[\033[0;92m\]"       # Green
+IYellow="\[\033[0;93m\]"      # Yellow
+IBlue="\[\033[0;94m\]"        # Blue
+IPurple="\[\033[0;95m\]"      # Purple
+ICyan="\[\033[0;96m\]"        # Cyan
+IWhite="\[\033[0;97m\]"       # White
+
+# Bold High Intensty
+BIBlack="\[\033[1;90m\]"      # Black
+BIRed="\[\033[1;91m\]"        # Red
+BIGreen="\[\033[1;92m\]"      # Green
+BIYellow="\[\033[1;93m\]"     # Yellow
+BIBlue="\[\033[1;94m\]"       # Blue
+BIPurple="\[\033[1;95m\]"     # Purple
+BICyan="\[\033[1;96m\]"       # Cyan
+BIWhite="\[\033[1;97m\]"      # White
+
+# High Intensty backgrounds
+On_IBlack="\[\033[0;100m\]"   # Black
+On_IRed="\[\033[0;101m\]"     # Red
+On_IGreen="\[\033[0;102m\]"   # Green
+On_IYellow="\[\033[0;103m\]"  # Yellow
+On_IBlue="\[\033[0;104m\]"    # Blue
+On_IPurple="\[\033[10;95m\]"  # Purple
+On_ICyan="\[\033[0;106m\]"    # Cyan
+On_IWhite="\[\033[0;107m\]"   # White
+
+
+
+BLACK="\[\e[00;30m\]"
+DARY_GRAY="\[\e[01;30m\]"
+RED="\[\e[00;31m\]"
+BRIGHT_RED="\[\e[01;31m\]"
+GREEN="\[\e[00;32m\]"
+BRIGHT_GREEN="\[\e[01;32m\]"
+BROWN="\[\e[00;33m\]"
+YELLOW="\[\e[01;33m\]"
+BLUE="\[\e[00;34m\]"
+BRIGHT_BLUE="\[\e[01;34m\]"
+PURPLE="\[\e[00;35m\]"
+LIGHT_PURPLE="\[\e[01;35m\]"
+CYAN="\[\e[00;36m\]"
+BRIGHT_CYAN="\[\e[01;36m\]"
+LIGHT_GRAY="\[\e[00;37m\]"
+WHITE="\[\e[01;37m\]"
+ENDCOLOR="\e[m"
+
+#BLACK="\033[00m"
+#BLUE="\033[01;34m"
+#GREEN="\033[01;32m"
+#GREY="\033[01;30m"
+#GREY2="\033[0;37m"
+#PURPLE="\033[01;35m"
+#RED="\033[01;31m"
+#YELLOW="\033[0;33m"
+
+ERROR_COLOR="$BRed" #"\033[1;31m" # red
+GIT_COLOR="$Yellow" #"\033[0;33m" # yellow
+STATUS_COLOR="$White" #"$GREY2" #"\033[0;37m" # grey
 
 update_status_in_color(){
     es=$?
-    PS1="\[$STATUS_COLOR\]("
+    PS1="$STATUS_COLOR("
     if [ $es -eq 0 ]; then
-        PS1="${PS1}\[$STATUS_COLOR\]$es"
+        PS1="${PS1}${STATUS_COLOR}${es}"
     else
-        PS1="${PS1}\[$ERROR_COLOR\]$es\[$STATUS_COLOR\]"
+        PS1="${PS1}${ERROR_COLOR}${es}${STATUS_COLOR}"
     fi
 
     [[ $DATE_PROMPT == true ]] && PS1="${PS1}: "`date +%Y-%m-%d:%H:%M:%S`
     PS1="${PS1}${debian_chroot:+($debian_chroot)}"
-    PS1="${PS1}\[$STATUS_COLOR\])"
+    PS1="${PS1}${STATUS_COLOR})"
 
-    git_branch=$(git branch 2>/dev/null | grep "*" | sed 's/*\s\+//')
-    if [ -n "$git_branch" ]; then
-        PS1="${PS1}\[$GIT_COLOR\][$git_branch]\[$STATUS_COLOR\]"
-    fi
+    #git_branch=$(git branch 2>/dev/null | grep "*" | sed 's/*\s\+//')
+    #if [ -n "$git_branch" ]; then
+    #    PS1="${PS1}\[$GIT_COLOR\][$git_branch]\[$STATUS_COLOR\]"
+    #fi
 
-    PS1="$PS1$PS1_STATIC_PART\[\033[0m\]"
+    PS1="$PS1$PS1_STATIC_PART"
 
     # virtualenv
     if [ -n "$VIRTUAL_ENV" ]; then
@@ -74,21 +176,31 @@ update_status_in_color(){
     fi
 }
 
+parse_git_branch() {
+    git_branch=$(git branch 2>/dev/null | grep "*" | sed 's/*\s\+//')
+    if [ -n "$git_branch" ]; then
+        #PS1="${PS1}\[$GIT_COLOR\][$git_branch]\[$STATUS_COLOR\]"
+        #echo "\[$GIT_COLOR\][$git_branch]\[$STATUS_COLOR\]"
+        echo "[$git_branch]"
+    fi
+}
+
 # Red prompt for root
 if [[ $UID == 0 ]]; then 
-	STATUS_COLOR="\033[1;31m"
-	ERROR_COLOR="\033[1;35m" # purple
-	PS1_STATIC_PART='\[\033[01;31m\]\u@\h:\w# \[\033[00m\]'
+	STATUS_COLOR="$BRed" #"\033[1;31m"
+	ERROR_COLOR="$BPurple" #"\033[1;35m" # purple
+    PS1_STATIC_PART='${BRed}\u@\h:\w\$(parse_git_branch)# ${Color_Off}'
 # In interactive PBS job
 elif [[ ! -z "$PBS_JOBID" ]]; then 
 	echo "In PBS job '$PBS_JOBID'"
-	PS1_STATIC_PART='\[\033[48;5;10m\]\u\[\033[47m\]\[\033[30m\]@\[\033[48;5;13m\]\h\[\033[47m\]\[\033[30m\]:\[\033[48;5;14m\]\w\[\033[47m\]\[\033[30m\]\$\[$(tput sgr0)\] '
+    PS1_STATIC_PART='\[\033[48;5;10m\]\u\[\033[47m\]\[\033[30m\]@\[\033[48;5;13m\]\h\[\033[47m\]\[\033[30m\]:\[\033[48;5;14m\]\w[$GIT_COLOR\]\$(parse_git_branch)\[\033[30m\]\$\[$(tput sgr0)\] '
 # remote SSH session
 elif [[ "$SSH_CONNECTION" != "" ]]; then
-	PS1_STATIC_PART='\[\033[01;32m\]\u\[\033[01;30m\]@\[\033[01;35m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1_STATIC_PART="${BGreen}\u${BBlack}@${BPurple}\h${BBlack}:${BBlue}\w$GIT_COLOR\$(parse_git_branch)${Black}\$${Color_Off} "
 # Normal session
 else
-	PS1_STATIC_PART='\[\033[1;34m\]\u\[\033[0;37m\]@\[\033[01;34m\]\h\[\033[0;37m\]:\[\033[0;32m\]\w\[\033[0;37m\]\$\[\033[00m\] '
+    #PS1_STATIC_PART="\[$BLUE\]\u\[$GREY2\]@\[$BLUE\]\h\[$GREY2\]:\[$GREEN\]\w\[$GIT_COLOR\]\$(parse_git_branch)\[$BLACK\]\$ "
+    PS1_STATIC_PART="${BBlue}\u${$White}@${BBlue}\h${WHITE}:${BGreen}\w${GIT_COLOR}\$(parse_git_branch)${Black}\$${Color_Off} "
 fi
 
 
