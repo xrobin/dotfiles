@@ -198,7 +198,7 @@ install_dotfiles () {
 install_docopt () {
     info 'installing docopts'
   
-    if hash docopts 2>/dev/null; then
+    if hash docopts && docopts -h >/dev/null 2>&1; then
         success "skipped docopts"
     else
         cd $DOTFILES_ROOT/docopts
