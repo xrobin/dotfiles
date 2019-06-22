@@ -103,7 +103,7 @@ STATUS_COLOR="$White" #"$GREY2" #"\033[0;37m" # grey
 if [[ $UID == 0 ]]; then 
 	STATUS_COLOR="$BRed" #"\033[1;31m"
 	ERROR_COLOR="$BPurple" #"\033[1;35m" # purple
-    PS1_STATIC_PART='${BRed}\u@\h:\w\$(parse_git_branch)# ${Color_Off}'
+    PS1_STATIC_PART="${BRed}\u@\h:\w\$(parse_git_branch)# ${Color_Off}"
 # In interactive PBS job
 elif [[ ! -z "$PBS_JOBID" ]]; then 
 	echo "In PBS job '$PBS_JOBID'"
