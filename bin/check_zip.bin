@@ -1,0 +1,45 @@
+#!/bin/bash
+
+eval "$(docopts -V - -h - : "$@" <<EOF
+Usage: check_zip [options] [--] <file>...
+
+      --quiet    Run quietly, only output upon error.
+      --help     Show help options.
+      --version  Print program version.
+----
+check_ffmpeg 0.1
+Check the integrity of media files with ffmpeg.
+
+Copyright (C) 2018 Xavier Robin
+License GPL 3+
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+EOF
+)"
+
+function max() {
+	echo $(( $1 > $2 ? $1 : $2 ))
+}
+
+if [ "${#file[@]}" -ne 1 ]; then
+	global_return=0
+	# Set trap to exit immediately upon Ctrl+C
+	# Otherwise only the child check_ffmpeg aborts and the loop continues
+	trap "exit 130" SIGINT
+	for f in "${file[@]}"; do
+		$quiet || echo -n "$f":
+		"$0" "$f"
+		ret_code=$?
+		if [ "$ret_code" -eq 0 ]; then
+			$quiet || echo " OK"
+		else
+			echo "unzip -t $f returned error code: $ret_code"
+			# Max of return code
+			global_return=$(max $global_return $ret_code)
+		fi
+	done
+	exit $global_return
+else
+	unzip -t "$file" > /dev/null
+fi       
+
