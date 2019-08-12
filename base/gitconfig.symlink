@@ -12,6 +12,7 @@
         scommit = commit -s
         stag = tag -s
         count   = !git shortlog -sn
+        tree = log --graph --oneline --all
 [color]
         diff = auto
         status = auto
