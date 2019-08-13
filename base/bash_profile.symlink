@@ -9,13 +9,3 @@ if [ -f ~/.bashrc ]; then
 	# Read .bashrc 	only if it hasn't already been done
 	[ "$_READ_BASHRC" == "$$" ] || . ~/.bashrc
 fi
-
-##
-# Your previous /Users/xavier/.bash_profile file was backed up as /Users/xavier/.bash_profile.macports-saved_2013-12-02_at_11:46:33
-##
-
-# MacPorts Installer addition on 2013-12-02_at_11:46:33: adding an appropriate PATH variable for use with MacPorts.
-# export PATH=/opt/local/bin:/opt/local/sbin:$PATH
-# Note: moved to .profile as per instructions mentioned on the first line of this file
-# Finished adapting your PATH environment variable for use with MacPorts.
-
