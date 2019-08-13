@@ -46,6 +46,8 @@ alias youtube-dl-mp4='youtube-dl -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" --al
 # Play a "Ta Daaa" sound. Useful to type just after long commands
 if [ -f ~/share/sounds/owin31-tada.wav ]; then
 	alias alert="paplay ~/share/sounds/owin31-tada.wav"
+elif hash afplay 2>/dev/null; then
+	alias alert='(afplay /System/Library/Sounds/Glass.aiff &)'
 fi
 
 # Hide ffmpeg banner
