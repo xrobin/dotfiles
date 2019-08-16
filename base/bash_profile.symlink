@@ -9,3 +9,7 @@ if [ -f ~/.bashrc ]; then
 	# Read .bashrc 	only if it hasn't already been done
 	[ "$_READ_BASHRC" == "$$" ] || . ~/.bashrc
 fi
+
+# Mark .bash_profile as read
+export _READ_BASH_PROFILE=$$
+
