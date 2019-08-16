@@ -63,3 +63,5 @@ if filereadable(expand("~/.vimrc.local"))
 	source ~/.vimrc.local
 endif
 
+" Set terminal title
+:set title
