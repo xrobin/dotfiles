@@ -147,7 +147,7 @@ export HISTIGNORE="cd:ls:[bf]g:clear"
 export HISTSIZE=20000
 export HISTFILESIZE=1000000
 export HISTCONTROL=ignoredups
-export HISTTIMEFORMAT=
+#export HISTTIMEFORMAT=
 shopt -s cmdhist
 shopt -s histappend
 
