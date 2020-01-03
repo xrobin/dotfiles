@@ -33,7 +33,9 @@ shopt -s checkwinsize
 
 # Expands variables to directories
 # This prevents $HOME/<TAB> from becoming \$HOME/
-shopt -s direxpand
+# shopt -s direxpand
+# But at the same time it replaces it with the absolute path such
+# which is often not desirable, so disabling
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
