@@ -198,7 +198,7 @@ install_dotfiles () {
 install_docopt () {
     info 'installing docopts'
   
-    if hash docopts && docopts -h >/dev/null 2>&1; then
+    if hash docopts 2>/dev/null && docopts -h >/dev/null 2>&1; then
         success "skipped docopts"
     else
         cd $DOTFILES_ROOT/docopts
@@ -226,7 +226,7 @@ install_trash () {
 install_thefuck () {
     info 'installing thefuck'
   
-    if hash thefuck && thefuck -h >/dev/null 2>&1; then
+    if hash thefuck 2>/dev/null && thefuck -h >/dev/null 2>&1; then
         success "skipped thefuck"
     else
 	try_exec "pip install --user thefuck" "error installing thefuck python module"
