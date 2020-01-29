@@ -263,4 +263,6 @@ export GPG_TTY=$(tty)
 # Remember if the file was read already
 _READ_BASHRC=$$
 
-eval "$(thefuck --alias)"
+if hash thefuck 2>/dev/null; then
+	eval "$(thefuck --alias)"
+fi
