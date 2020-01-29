@@ -6,6 +6,7 @@ Usage: check_ffmpeg [options] [--] <file>...
       --quiet    Run quietly, only output upon error.
       --help     Show help options.
       --version  Print program version.
+      --verbose  Always print file name
 ----
 check_ffmpeg 0.1
 Check the integrity of media files with ffmpeg.
@@ -26,13 +27,22 @@ if [ "${#file[@]}" -ne 1 ]; then
 	# Set trap to exit immediately upon Ctrl+C
 	# Otherwise only the child check_ffmpeg aborts and the loop continues
 	trap "exit 130" SIGINT
+	# Pass quiet and verbose
+	if $quiet; then
+		extra_args="--quiet"
+	else
+		extra_args=""
+	fi
+	
 	for f in "${file[@]}"; do
-		echo -n "$f":
-		"$0" "$f"
+		if ! $quiet; then
+			echo -n "$f":
+		fi
+		"$0" $extra_args "$f"
 		ret_code=$?
-		if [ "$ret_code" -eq 0 ]; then
+		if [ "$ret_code" -eq 0 ] && ! $quiet; then
 			echo " OK"
-		else
+		elif ! $quiet; then
 			echo " $ret_code"
 			# Max of return code
 			global_return=$(max $global_return $ret_code)
@@ -40,6 +50,16 @@ if [ "${#file[@]}" -ne 1 ]; then
 	done
 	exit $global_return
 else
+	if $verbose; then
+		echo -n "$file":
+	fi
 	ffmpeg -v error -i "$file" -f null -
+	ret_code=$?
+	if [ "$ret_code" -eq 0 ] && $verbose; then
+		echo " OK"
+	elif $verbose; then
+		echo " $ret_code"
+	fi
+	exit $ret_code
 fi       
 
