@@ -1,29 +1,18 @@
 #!/bin/bash
-set -euo pipefail
+# Checks consistency of SOA records of domain across the name servers
+# Usage: check_SOA example.com
+domain=$1
+if [ -z $domain ]; then
+	>&2 echo "Usage: check_SOA example.com"
+	exit 1
+fi
 
-eval "$(docopts -V - -h - : "$@" <<EOF
-Usage: check_SOA [options] <domain>...
-
-      --verbose  Generate verbose messages.
-      --quiet    Run quietly, only output upon error.
-      --help     Show help options.
-      --version  Print program version.
-----
-check_SOA 0.1
-Copyright (C) 2017 Xavier Robin
-License GPL 3+
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-EOF
-)"
-
-[ $quiet == true ] || >&2 echo "Checking domain $domain..."
-NSes=$(dig NS $domain +short | sed 's/.$//')
+>&2 echo "Checking domain $domain..."
+NSes=$(dig NS $domain +short)
 
 # Get the primary:
-primary_NS=$(dig +short SOA $domain | head -n 1 | cut -d' ' -f1)
-primary_NSes=$(dig @$primary_NS NS $domain +short | sed 's/.$//' | sort)
-primary_SOA=$(dig @$primary_NS SOA $domain +short)
+primary_NS=$(dig +short SOA $domain | cut -d' ' -f1)
+primary_result=$(dig @$primary_NS SOA $domain +short)
 
 # Find the longest NS name
 maxlen=0
@@ -35,32 +24,13 @@ done
 exit_code=0
 for NS in $NSes; do
     result=$(dig @$NS SOA $domain +short)
-    [ $quiet == true ] || printf "%-${maxlen}s: %s\n" "$NS" "$result"
-    if  [ "$primary_SOA" !=  "$result" ]; then
-        [ $quiet == true ] || >&2 echo "error in $NS: differs from primary!"
+    printf "%${maxlen}s: %s\n" "$NS" "$result"
+    if [ ! -z "$previous_result" ] && [ "$previous_result" !=  "$result" ]; then
+        >&2 echo "error in $NS: differs from primary!"
 	exit_code=$((exit_code+1))
     fi
+    previous_result="$result"
 done
 
-# Get the parent
-[ $quiet == true ] || >&2 echo "Checking parent zone..."
-parent_zone=$(echo "$domain" | sed 's/[^.]\+\.//')
-parent_NSes=$(dig +short NS $parent_zone | sed 's/.$//')
-
-# Find the longest parent NS name
-maxlen=0
-for NS in $parent_NSes; do
-    newlen=${#NS}
-    ((newlen > maxlen)) && maxlen=$newlen
-done
-
-for parent_NS in $parent_NSes; do
-    result=$(dig @$parent_NS NS "$domain" +authority | grep -v ";" | grep NS | sed 's/.\+\sNS\s\+//' | sed 's/.$//' | sort)
-    [ $quiet == true ] || printf "%-${maxlen}s: " "$parent_NS"
-    [ $quiet == true ] || echo $result
-    if [[ "$primary_NSes" != "$result" ]]; then
-        >&2 echo "error in $NS: parent NS differs from primary!"
-    	exit_code=$((exit_code+1))
-    fi
-done
 exit $exit_code
+
