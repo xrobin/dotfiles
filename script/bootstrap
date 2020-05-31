@@ -202,7 +202,7 @@ install_docopt () {
         success "skipped docopts"
     else
         cd $DOTFILES_ROOT/docopts
-	try_exec "pip install --user docopt" "error installing docopt python module"
+	try_exec "pip3 install --user docopt" "error installing docopt python module"
         try_exec "python3 setup.py build" "error installing docopts"
         try_install_file $DOTFILES_ROOT/docopts/docopts $HOME/bin/docopts
 	success "docopts installed successfully"
@@ -229,7 +229,7 @@ install_thefuck () {
     if hash thefuck 2>/dev/null && thefuck -h >/dev/null 2>&1; then
         success "skipped thefuck"
     else
-	try_exec "pip install --user thefuck" "error installing thefuck python module"
+	try_exec "pip3 install --user thefuck" "error installing thefuck python module"
 	success "thefuck installed successfully"
     fi
 }
