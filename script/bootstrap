@@ -212,7 +212,7 @@ install_docopt () {
 install_trash () {
     info 'installing trash-cli'
   
-    if hash trash 2>/dev/null; then
+    if hash trash 2>/dev/null && trash --help 2>/dev/null; then
         success "skipped trash-cli"
     else
 	try_exec "git clone https://github.com/andreafrancia/trash-cli.git" "error getting trash-cli from GitHub"
