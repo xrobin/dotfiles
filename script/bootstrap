@@ -182,6 +182,10 @@ install_dotfiles () {
 
   for source in `find $DOTFILES_ROOT -maxdepth 2 -name \*.symlink`
   do
+      if [[ "$source" =~ ^.*\.mac\.symlink$ && `uname` != "Darwin" ]]; then
+        success "skipped $source"
+        continue
+      fi
       dest="$HOME/.`basename \"${source%.*}\"`"
       try_install_file "$source" "$dest"
   done
