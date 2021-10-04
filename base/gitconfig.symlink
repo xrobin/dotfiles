@@ -4,6 +4,7 @@
         name = Xavier Robin
         email = xavalias-github@xavier.robin.name
 [credential]
+	helper = cache
         # helper = GIT_CREDENTIAL_HELPER
 [alias]
 	st = status
