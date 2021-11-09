@@ -87,7 +87,6 @@ HOST_EXT=""
 if [ -d /.singularity.d ]; then
 	HOST_EXT="-singularity"
 fi
-echo "Host ext: ${HOST_EXT}"
 
 # Red prompt for root
 if [[ $UID == 0 ]]; then 
