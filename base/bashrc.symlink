@@ -83,21 +83,27 @@ parse_git_branch() {
 ERROR_COLOR="$BRed" #"\033[1;31m" # red
 STATUS_COLOR="$White" #"$GREY2" #"\033[0;37m" # grey
 
+HOST_EXT=""
+if [ -d /.singularity.d ]; then
+	HOST_EXT="-singularity"
+fi
+echo "Host ext: ${HOST_EXT}"
+
 # Red prompt for root
 if [[ $UID == 0 ]]; then 
 	STATUS_COLOR="$BRed" #"\033[1;31m"
 	ERROR_COLOR="$BGreen" #"\033[1;35m" # purple
-    PS1_STATIC_PART="${BRed}\u@\h:\w\$(parse_git_branch)# ${Color_Off}"
+    PS1_STATIC_PART="${BRed}\u@\h${HOST_EXT}:\w\$(parse_git_branch)# ${Color_Off}"
 # In interactive PBS job
 elif [[ ! -z "$PBS_JOBID" ]]; then 
 	echo "In PBS job '$PBS_JOBID'"
-    PS1_STATIC_PART='\[\033[48;5;10m\]\u\[\033[47m\]\[\033[30m\]@\[\033[48;5;13m\]\h\[\033[47m\]\[\033[30m\]:\[\033[48;5;14m\]\w[${Yellow}\$(parse_git_branch)\[\033[30m\]\$\[$(tput sgr0)\] '
+    PS1_STATIC_PART='\[\033[48;5;10m\]\u\[\033[47m\]\[\033[30m\]@\[\033[48;5;13m\]\h${HOST_EXT}\[\033[47m\]\[\033[30m\]:\[\033[48;5;14m\]\w[${Yellow}\$(parse_git_branch)\[\033[30m\]\$\[$(tput sgr0)\] '
 # remote SSH session
 elif [[ "$SSH_CONNECTION" != "" ]]; then
-    PS1_STATIC_PART="${BGreen}\u${BBlack}@${BPurple}\h${BBlack}:${BBlue}\w${Yellow}\$(parse_git_branch)${Black}\$${Color_Off} "
+    PS1_STATIC_PART="${BGreen}\u${BBlack}@${BPurple}\h${HOST_EXT}${BBlack}:${BBlue}\w${Yellow}\$(parse_git_branch)${Black}\$${Color_Off} "
 # Normal session
 else
-    PS1_STATIC_PART="${BBlue}\u${White}@${BBlue}\h${White}:${Green}\w${Yellow}\$(parse_git_branch)${White}\$${Color_Off} "
+    PS1_STATIC_PART="${BBlue}\u${White}@${BBlue}\h${BPurple}${HOST_EXT}${White}:${Green}\w${Yellow}\$(parse_git_branch)${White}\$${Color_Off} "
 fi
 
 # If this is an xterm set the title to user@host:dir
@@ -210,14 +216,14 @@ GLOBIGNORE=.
 shopt -u dotglob
 
 # Google Compute servers have very complicated names
-if [[ $HOST =~ lindinglab-.+-opensuse-13-[0-9] ]]; then 
-       	export HOST=`echo $HOST | sed 's/lindinglab-\(.\+\)-opensuse-13-[[:digit:]]/\1/'`;
-	PS1="`echo $PS1 | sed 's/\\\\h/$HOST/'` "
-fi
-if [[ $HOSTNAME =~ lindinglab-.+-opensuse-13-[0-9] ]]; then 
-	export HOSTNAME=`echo $HOSTNAME | sed 's/lindinglab-\(.\+\)-opensuse-13-[[:digit:]]/\1/'`;
-	PS1="`echo $PS1 | sed 's/\\\\h/$HOSTNAME/'` "
-fi
+#if [[ $HOST =~ lindinglab-.+-opensuse-13-[0-9] ]]; then 
+#       	export HOST=`echo $HOST | sed 's/lindinglab-\(.\+\)-opensuse-13-[[:digit:]]/\1/'`;
+#	PS1="`echo $PS1 | sed 's/\\\\h/$HOST/'` "
+#fi
+#if [[ $HOSTNAME =~ lindinglab-.+-opensuse-13-[0-9] ]]; then 
+#	export HOSTNAME=`echo $HOSTNAME | sed 's/lindinglab-\(.\+\)-opensuse-13-[[:digit:]]/\1/'`;
+#	PS1="`echo $PS1 | sed 's/\\\\h/$HOSTNAME/'` "
+#fi
 
 
 # Sends an email alert. Useful to run after long commands
