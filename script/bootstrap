@@ -152,6 +152,17 @@ try_install_file() {
     
 }
 
+create_venv () {
+    info "creating local virtualenv"
+
+    if [[ $(python -c "import sys; print(sys.prefix != sys.base_prefix)") == True ]] then
+        success "local virtualenv already exists"
+    else
+        virtualenv --system-site-packages ~/.virtualenvs/local
+        success "local virtualenv created"
+    fi
+}
+
 install_pip () {
     info "installing pip"
 
@@ -243,6 +254,7 @@ install_thefuck () {
 }
 
 
+create_venv
 install_pip
 pull_submodules
 

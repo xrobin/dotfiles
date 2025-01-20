@@ -24,7 +24,7 @@ export HOSTALIASES=~/.hosts
 export CLOUDSDK_PYTHON=`which python2 2>/dev/null`
 
 # Use ~/.local
-export PATH=~/.local/bin:$PATH
+export PATH=~/.virtualenvs/local/bin/:~/.local/bin:$PATH
 export LD_LIBRARY_PATH=~/.local/lib:~/.local/lib64:$LD_LIBRARY_PATH
 export CPPFLAGS="-I$HOME/.local/include $CPPFLAGS"
 export LDFLAGS="-L$HOME/.local/lib -L$HOME/.local/lib64 $LDFLAGS"
