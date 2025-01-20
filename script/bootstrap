@@ -262,7 +262,7 @@ pull_submodules
 install_dotfiles
 install_docopt
 install_trash
-install_thefuck
+# install_thefuck
 
 # If we're on a Mac, let's install and setup homebrew.
 #if [ "$(uname -s)" == "Darwin" ]
