@@ -23,6 +23,7 @@
         excludesfile = ~/.gitignore
 	autocrlf = input
 	pager = less -R
+	editor = vim
 [apply]
         whitespace = nowarn
 [mergetool]
