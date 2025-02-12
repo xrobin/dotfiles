@@ -65,3 +65,7 @@ endif
 
 " Set terminal title
 :set title
+
+" Prevent splitting of very long lines
+" https://unix.stackexchange.com/a/5285/21705
+set formatoptions-=tc
