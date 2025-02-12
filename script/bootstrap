@@ -155,7 +155,7 @@ try_install_file() {
 create_venv () {
     info "creating local virtualenv"
 
-    if [[ $(python -c "import sys; print(sys.prefix != sys.base_prefix)") == True ]] then
+    if [[ $(python -c "import sys; print(sys.prefix != sys.base_prefix)") == True ]]; then
         success "local virtualenv already exists"
     else
         virtualenv --system-site-packages ~/.virtualenvs/local
