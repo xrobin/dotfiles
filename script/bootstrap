@@ -81,14 +81,6 @@ link_files () {
   success "linked $1 to $2"
 }
 
-setup_safe_rm() {
-	cd safe-rm
-	wget https://launchpad.net/safe-rm/trunk/0.12/+download/safe-rm-0.12.tar.gz
-	tar -xf safe-rm-0.12.tar.gz
-	rm safe-rm-0.12.tar.gz
-	cd ..
-}
-
 try_install_file() {
     src=$1
     dst=$2
