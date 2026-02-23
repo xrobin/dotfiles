@@ -166,8 +166,8 @@ create_venv () {
 install_pip () {
     info "installing pip"
 
-    if hash pip 2>/dev/null; then
-        success "pip already installed"
+    if hash pip3  2>/dev/null; then
+	success "pip already installed"
     else
         if hash easy_install 2>/dev/null && easy_install --help|grep user>/dev/null; then
 	                                    # Does easy_install support "--user"?
