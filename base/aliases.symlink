@@ -42,6 +42,8 @@ alias rblcheck='rblcheck -s httpbl.abuse.ch -s apache.bl.blocklist.de -s brutefo
 # Youtube-dl common formats
 alias youtube-dl-webm='youtube-dl -f "bestvideo[ext=webm]+bestaudio[ext=webm]" --all-subs --embed-subs'
 alias youtube-dl-mp4='youtube-dl -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" --all-subs --embed-subs'
+alias yt-dlp-webm='yt-dlp -f "bestvideo[ext=webm]+bestaudio[ext=webm]" --all-subs --embed-subs'
+alias yt-dlp-mp4='yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" --all-subs --embed-subs'
 
 # Play a "Ta Daaa" sound. Useful to type just after long commands
 if [ -f ~/share/sounds/owin31-tada.wav ]; then
