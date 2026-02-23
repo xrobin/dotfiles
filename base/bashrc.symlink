@@ -164,7 +164,7 @@ shopt -s histappend
 # make make faster by parallelizing
 # Only in interactive shells for safety reasons...
 if hash nproc 2>/dev/null; then
-	export MAKEFLAGS=-j`nproc`
+	export MAKEFLAGS=-j$(printf $(nproc)"\n"8|sort -n|head -n 1)
 fi
 
 #/home/xavier/.showcow
