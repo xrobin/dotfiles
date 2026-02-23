@@ -1,0 +1,6 @@
+# Somehow R_LIBS_USER is no longer set from .profile in RStudio
+if (R.version$status == "Under development (unstable)") {
+	.libPaths("~/R/library-unstable/")
+} else {
+	.libPaths("~/R/library/")
+}
