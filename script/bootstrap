@@ -191,7 +191,7 @@ install_dotfiles () {
   backup_all=false
   skip_all=false
 
-  for source in `find $DOTFILES_ROOT -maxdepth 2 -name \*.symlink`
+  for source in `find $DOTFILES_ROOT -name \*.symlink`
   do
       if [[ "$source" =~ ^.*\.mac\.symlink$ && `uname` != "Darwin" ]]; then
         success "skipped $source"
@@ -201,15 +201,14 @@ install_dotfiles () {
         success "skipped $source"
         continue
       fi
-      dest="$HOME/.`basename \"${source%.*}\"`"
-      try_install_file "$source" "$dest"
-  done
-  if [ ! -e "$HOME/bin" ]; then
-  	try_exec "mkdir -p $HOME/bin" "bin folder created"
-  fi
-  for source in `find $DOTFILES_ROOT/bin -maxdepth 1 -name \*.bin`
-  do
-      dest="$HOME/bin/`basename \"${source%.*}\"`"
+      # Compute destination relative to the topic directory, supporting nested paths.
+      # e.g. base/cursor/rules.symlink -> cursor/rules -> ~/.cursor/rules
+      # For flat entries (base/bashrc.symlink -> bashrc -> ~/.bashrc) this is equivalent
+      # to the old basename approach.
+      rel_path="${source#$DOTFILES_ROOT/*/}"
+      rel_path="${rel_path%.*}"
+      dest="$HOME/.$rel_path"
+      mkdir -p "$(dirname "$dest")"
       try_install_file "$source" "$dest"
   done
 }
