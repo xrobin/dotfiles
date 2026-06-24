@@ -7,3 +7,8 @@
 .pydevproject
 .idea/
 last.dump.rda
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.quarto
