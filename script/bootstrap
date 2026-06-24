@@ -69,15 +69,32 @@ setup_gitconfig () {
 }
 
 link_files () {
-  ln -s $1 $2
+  try_exec "ln -s \"$1\" \"$2\"" "failed to link $1 to $2"
   success "linked $1 to $2"
+}
+
+ensure_home_bin () {
+  if [ -L "$HOME/bin" ] && [ ! -e "$HOME/bin" ]; then
+    rm "$HOME/bin"
+  elif [ -e "$HOME/bin" ] && [ ! -d "$HOME/bin" ]; then
+    fail "$HOME/bin exists but is not a directory"
+  fi
+  try_exec "mkdir -p \"$HOME/bin\"" "error creating ~/bin"
+}
+
+setup_safe_rm() {
+	cd safe-rm
+	wget https://launchpad.net/safe-rm/trunk/0.12/+download/safe-rm-0.12.tar.gz
+	tar -xf safe-rm-0.12.tar.gz
+	rm safe-rm-0.12.tar.gz
+	cd ..
 }
 
 try_install_file() {
     src=$1
     dst=$2
 
-    if [ -f $dst ] || [ -d $dst ]
+    if [ -f "$dst" ] || [ -d "$dst" ]
     then
 
       overwrite=false
@@ -109,13 +126,13 @@ try_install_file() {
 
       if [ "$overwrite" == "true" ] || [ "$overwrite_all" == "true" ]
       then
-        rm -rf $dst
+        rm -rf "$dst"
         success "removed $dst"
       fi
 
       if [ "$backup" == "true" ] || [ "$backup_all" == "true" ]
       then
-        mv $dst $dst\.backup
+        mv "$dst" "$dst.backup"
         success "moved $dst to $dst.backup"
       fi
 
@@ -145,22 +162,13 @@ install_dotfiles () {
 
   for source in `find $DOTFILES_ROOT -name \*.symlink`
   do
-      if [[ "$source" =~ ^.*\.mac\.symlink$ && `uname` != "Darwin" ]]; then
-        success "skipped $source"
-        continue
-      fi
-      if [[ "$source" =~ ^.*\.linux\.symlink$ && `uname` != "Linux" ]]; then
-        success "skipped $source"
-        continue
-      fi
-      # Compute destination relative to the topic directory, supporting nested paths.
-      # e.g. base/cursor/rules.symlink -> cursor/rules -> ~/.cursor/rules
-      # For flat entries (base/bashrc.symlink -> bashrc -> ~/.bashrc) this is equivalent
-      # to the old basename approach.
-      rel_path="${source#$DOTFILES_ROOT/*/}"
-      rel_path="${rel_path%.*}"
-      dest="$HOME/.$rel_path"
-      mkdir -p "$(dirname "$dest")"
+      dest="$HOME/.$(basename "${source%.*}")"
+      try_install_file "$source" "$dest"
+  done
+  ensure_home_bin
+  for source in `find $DOTFILES_ROOT/bin -maxdepth 1 -name \*.bin`
+  do
+      dest="$HOME/bin/$(basename "${source%.*}")"
       try_install_file "$source" "$dest"
   done
 }
@@ -196,9 +204,7 @@ install_docopts () {
         fail "unsupported OS/arch for docopts binary (OSTYPE=$OSTYPE, arch=$(uname -m))"
     fi
 
-    if [ ! -e "$HOME/bin" ]; then
-        try_exec "mkdir -p $HOME/bin" "error creating ~/bin"
-    fi
+    ensure_home_bin
 
     DOCOPTS_DOWNLOAD=docopts_${DOCOPTS_OS_URL}_${DOCOPTS_ARCH_BIN}
     DOCOPTS_URL="$DOCOPTS_BASE_URL/$DOCOPTS_RELEASE/$DOCOPTS_DOWNLOAD"
@@ -220,7 +226,7 @@ install_docopts () {
         sha256sum --ignore-missing -c sha256sum.txt
     )
 
-    install -m 755 "$DOCOPTS_DIR/$DOCOPTS_DOWNLOAD" "$HOME/bin/docopts"
+    try_exec "command install -m 755 \"$DOCOPTS_DIR/$DOCOPTS_DOWNLOAD\" \"$HOME/bin/docopts\"" "error installing docopts to ~/bin/docopts"
     success 'docopts installed successfully'
 }
 
