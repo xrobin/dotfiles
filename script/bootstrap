@@ -241,28 +241,33 @@ install_trash () {
     if [ "$(uname -s)" = "Darwin" ]; then
         try_exec "brew install trash-cli" "error installing trash-cli with brew"
     else
-        user 'Install trash-cli via [a]pt+pipx (sudo) or [p]ip+pipx (no sudo)? '
-        read -n 1 trash_method
-        echo
-        case "$trash_method" in
-            a|A)
-                try_exec "sudo apt install -y pipx" "error installing pipx with apt"
-                ;;
-            p|P)
-                if ! python3 -m pip --version >/dev/null 2>&1; then
-                    fail 'pip not available — load a Python module (e.g. ml Python/...) or use the apt path'
-                fi
-                try_exec "python3 -m pip install --user pipx" "error installing pipx with pip"
-                export PATH="$HOME/.local/bin:$PATH"
-                ;;
-            *)
-                fail 'unknown choice'
-                ;;
-        esac
         if ! hash pipx 2>/dev/null; then
             export PATH="$HOME/.local/bin:$PATH"
         fi
-        try_exec "pipx ensurepath" "error running pipx ensurepath"
+        if ! hash pipx 2>/dev/null; then
+            user 'Install trash-cli via [a]pt+pipx (sudo) or [p]ip+pipx (no sudo)? '
+            read -n 1 trash_method
+            echo
+            case "$trash_method" in
+                a|A)
+                    try_exec "sudo apt install -y pipx" "error installing pipx with apt"
+                    ;;
+                p|P)
+                    if ! python3 -m pip --version >/dev/null 2>&1; then
+                        fail 'pip not available — load a Python module (e.g. ml Python/...) or use the apt path'
+                    fi
+                    try_exec "python3 -m pip install --user pipx" "error installing pipx with pip"
+                    export PATH="$HOME/.local/bin:$PATH"
+                    ;;
+                *)
+                    fail 'unknown choice'
+                    ;;
+            esac
+            if ! hash pipx 2>/dev/null; then
+                export PATH="$HOME/.local/bin:$PATH"
+            fi
+            try_exec "pipx ensurepath" "error running pipx ensurepath"
+        fi
         try_exec "pipx install trash-cli" "error installing trash-cli with pipx"
     fi
     success 'trash-cli installed successfully'
