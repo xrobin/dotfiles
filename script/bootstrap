@@ -162,13 +162,22 @@ install_dotfiles () {
 
   for source in `find $DOTFILES_ROOT -name \*.symlink`
   do
-      dest="$HOME/.$(basename "${source%.*}")"
-      try_install_file "$source" "$dest"
-  done
-  ensure_home_bin
-  for source in `find $DOTFILES_ROOT/bin -maxdepth 1 -name \*.bin`
-  do
-      dest="$HOME/bin/$(basename "${source%.*}")"
+      if [[ "$source" =~ ^.*\.mac\.symlink$ && `uname` != "Darwin" ]]; then
+        success "skipped $source"
+        continue
+      fi
+      if [[ "$source" =~ ^.*\.linux\.symlink$ && `uname` != "Linux" ]]; then
+        success "skipped $source"
+        continue
+      fi
+      # Destination relative to the topic directory, supporting nested paths.
+      # e.g. base/cursor/rules.symlink -> ~/.cursor/rules
+      #      base/local/bin/foo.symlink -> ~/.local/bin/foo
+      #      base/bashrc.symlink -> ~/.bashrc
+      rel_path="${source#$DOTFILES_ROOT/*/}"
+      rel_path="${rel_path%.*}"
+      dest="$HOME/.$rel_path"
+      mkdir -p "$(dirname "$dest")"
       try_install_file "$source" "$dest"
   done
 }
