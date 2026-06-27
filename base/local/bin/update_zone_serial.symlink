@@ -1,0 +1,472 @@
+#!/usr/bin/env python3
+"""
+Update BIND DNS zone file serial number.
+Serial format: YYYYMMDD## (date + 2-digit index)
+- If date changed: reset index to 00
+- If date same: increment index
+"""
+
+import glob
+import os
+import re
+import shutil
+import stat
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+
+
+def get_today_date():
+    """Return today's date in YYYYMMDD format."""
+    return datetime.now().strftime("%Y%m%d")
+
+
+def extract_serial_date_and_index(serial):
+    """
+    Extract date and index from serial number.
+    Returns: (date_str, index_int) or (None, None) if invalid format
+    """
+    serial_str = str(serial).strip()
+    
+    # Serial should be YYYYMMDD## (10 digits total)
+    if len(serial_str) != 10 or not serial_str.isdigit():
+        return None, None
+    
+    date_part = serial_str[:8]
+    index_part = serial_str[8:10]
+    
+    # Validate date part (basic check)
+    if not (1900 <= int(date_part[:4]) <= 2100):
+        return None, None
+    
+    try:
+        index = int(index_part)
+        return date_part, index
+    except ValueError:
+        return None, None
+
+
+def calculate_new_serial(current_serial):
+    """
+    Calculate new serial based on current serial and today's date.
+    
+    Returns: new_serial (int) or None if current serial is invalid
+    """
+    today = get_today_date()
+    
+    date_part, index = extract_serial_date_and_index(current_serial)
+    
+    if date_part is None:
+        print(f"Error: Invalid serial format '{current_serial}'")
+        print(f"Expected format: YYYYMMDD## (e.g., 2025062700)")
+        return None
+    
+    # If date changed, reset index to 00
+    if date_part < today:
+        new_serial = int(today + "00")
+        print(f"  Date changed ({date_part} → {today}), index reset to 00")
+    else:
+        # Same date: increment index (max 99)
+        if index >= 99:
+            print(f"Warning: Index at maximum (99), wrapping to 00")
+            new_serial = int(today + "00")
+        else:
+            new_index = index + 1
+            new_serial = int(today + f"{new_index:02d}")
+            print(f"  Same date ({today}), index incremented ({index:02d} → {new_index:02d})")
+    
+    return new_serial
+
+
+def extract_zone_name(content):
+    """
+    Extract zone name from $ORIGIN directive in zone file.
+    Returns: zone_name (string) or None if not found
+    """
+    lines = content.split('\n')
+    for line in lines:
+        # Skip comments
+        stripped = line.strip()
+        if stripped.startswith(';'):
+            continue
+        
+        # Look for $ORIGIN directive
+        if stripped.upper().startswith('$ORIGIN'):
+            parts = stripped.split()
+            if len(parts) >= 2:
+                # Remove trailing dot if present
+                zone_name = parts[1].rstrip('.')
+                return zone_name
+    
+    return None
+
+
+def find_soa_record(content):
+    """
+    Find SOA record in zone file content (handles multi-line SOA).
+    Returns: (start_line_number, soa_text) or (None, None)
+    """
+    lines = content.split('\n')
+    
+    for i, line in enumerate(lines):
+        # Skip comments and empty lines
+        if line.strip().startswith(';') or not line.strip():
+            continue
+        
+        # Match SOA record (case-insensitive)
+        if 'SOA' in line.upper():
+            # Collect all lines that are part of this SOA record
+            soa_text = line
+            
+            # If SOA has opening paren, keep collecting until closing paren
+            if '(' in line and ')' not in line:
+                j = i + 1
+                while j < len(lines):
+                    soa_text += '\n' + lines[j]
+                    if ')' in lines[j]:
+                        break
+                    j += 1
+            
+            return i, soa_text
+    
+    return None, None
+
+
+def extract_serial_from_soa(soa_text):
+    """Extract serial number from SOA record (handles multi-line SOA)."""
+    # Remove newlines and normalize whitespace
+    soa_normalized = ' '.join(soa_text.split())
+    
+    # Remove comments
+    soa_normalized = re.sub(r';.*', '', soa_normalized)
+    
+    # Extract all numbers from the SOA record
+    numbers = re.findall(r'\b\d+\b', soa_normalized)
+    
+    if not numbers:
+        return None
+    
+    # The serial is typically the first number after the SOA keyword and nameservers
+    # Find the SOA keyword position and get the first number after it
+    soa_match = re.search(r'\bSOA\b', soa_normalized, re.IGNORECASE)
+    if not soa_match:
+        return None
+    
+    # Find all numbers after SOA keyword
+    after_soa = soa_normalized[soa_match.end():]
+    numbers_after_soa = re.findall(r'\b\d+\b', after_soa)
+    
+    if numbers_after_soa:
+        try:
+            return int(numbers_after_soa[0])
+        except ValueError:
+            return None
+    
+    return None
+
+
+def replace_serial_in_soa(soa_line, old_serial, new_serial):
+    """Replace serial number in SOA record."""
+    old_serial_str = str(old_serial)
+    new_serial_str = str(new_serial)
+    
+    # Use word boundary to avoid partial matches
+    pattern = r'\b' + re.escape(old_serial_str) + r'\b'
+    updated_line = re.sub(pattern, new_serial_str, soa_line, count=1)
+    
+    if updated_line == soa_line:
+        print(f"Error: Could not find serial '{old_serial}' in SOA record")
+        return None
+    
+    return updated_line
+
+
+def _restore_metadata(path: Path, ref_stat) -> None:
+    """Restore and verify permissions and ownership. Raises OSError on failure."""
+    mode = stat.S_IMODE(ref_stat.st_mode)
+
+    try:
+        os.chmod(path, mode)
+    except OSError as e:
+        raise OSError(f"Failed to restore permissions on {path}: {e}") from e
+
+    try:
+        os.chown(path, ref_stat.st_uid, ref_stat.st_gid)
+    except OSError as e:
+        raise OSError(f"Failed to restore ownership on {path}: {e}") from e
+
+    current = path.stat()
+    if stat.S_IMODE(current.st_mode) != mode:
+        raise OSError(
+            f"Permissions mismatch on {path}: "
+            f"expected {mode:#o}, got {stat.S_IMODE(current.st_mode):#o}"
+        )
+    if current.st_uid != ref_stat.st_uid or current.st_gid != ref_stat.st_gid:
+        raise OSError(
+            f"Ownership mismatch on {path}: "
+            f"expected uid={ref_stat.st_uid} gid={ref_stat.st_gid}, "
+            f"got uid={current.st_uid} gid={current.st_gid}"
+        )
+
+
+def _write_file_with_metadata(path: Path, content: str, ref_stat) -> None:
+    """Write content to path with permissions and ownership from ref_stat."""
+    mode = stat.S_IMODE(ref_stat.st_mode)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, mode)
+    try:
+        os.write(fd, content.encode('utf-8'))
+    finally:
+        os.close(fd)
+
+    _restore_metadata(path, ref_stat)
+
+
+def write_file_preserve_metadata(path: Path, content: str, ref_stat=None) -> None:
+    """Atomically write content, preserving permissions and ownership."""
+    if ref_stat is None:
+        ref_stat = path.stat()
+
+    temp_path = path.parent / f".{path.name}.{os.getpid()}.tmp"
+    try:
+        _write_file_with_metadata(temp_path, content, ref_stat)
+        os.replace(temp_path, path)
+        _restore_metadata(path, ref_stat)
+    except Exception:
+        if temp_path.exists():
+            temp_path.unlink()
+        raise
+
+
+def validate_zone_file(zone_file, zone_name=None):
+    """
+    Validate zone file using named-checkzone if available.
+    Returns: True if valid, False otherwise
+    """
+    try:
+        # Try to use named-checkzone if available
+        result = subprocess.run(
+            ['named-checkzone', zone_name, str(zone_file)],
+            capture_output=True,
+            timeout=5
+        )
+        
+        if result.returncode != 0:
+            print(f"Error: Zone validation failed")
+            if result.stderr:
+                print(result.stderr.decode())
+            if result.stdout:
+                print(result.stdout.decode())
+            return False
+        
+        return True
+    
+    except FileNotFoundError:
+        print("Warning: named-checkzone not found, skipping validation")
+        print("  (Install bind-utils/bind-tools to enable validation)")
+        return True
+    except subprocess.TimeoutExpired:
+        print("Error: Zone validation timed out")
+        return False
+    except Exception as e:
+        print(f"Warning: Could not validate zone: {e}")
+        return True  # Don't fail if validation unavailable
+
+
+def update_zone_serial(zone_file_path, zone_name=None, dry_run=False):
+    """
+    Main function to update zone serial.
+    
+    Returns: True if successful, False otherwise
+    """
+    zone_file = Path(zone_file_path)
+    
+    # Safety checks
+    if not zone_file.exists():
+        print(f"Error: Zone file not found: {zone_file}")
+        return False
+    
+    if not zone_file.is_file():
+        print(f"Error: Path is not a file: {zone_file}")
+        return False
+    
+    if not zone_file.stat().st_size > 0:
+        print(f"Error: Zone file is empty: {zone_file}")
+        return False
+    
+    print(f"Reading zone file: {zone_file}")
+    
+    # Read the zone file
+    try:
+        content = zone_file.read_text()
+    except Exception as e:
+        print(f"Error: Could not read zone file: {e}")
+        return False
+    
+    # Extract zone name from $ORIGIN if not provided
+    if zone_name is None:
+        zone_name = extract_zone_name(content)
+        if zone_name:
+            print(f"  Zone name: {zone_name}")
+    
+    # Find SOA record
+    soa_start_line, soa_text = find_soa_record(content)
+    if soa_text is None:
+        print("Error: SOA record not found in zone file")
+        return False
+    
+    print(f"  Found SOA record at line {soa_start_line + 1}")
+    
+    # Extract current serial
+    current_serial = extract_serial_from_soa(soa_text)
+    if current_serial is None:
+        print("Error: Could not extract serial from SOA record")
+        print(f"  SOA text: {soa_text}")
+        return False
+    
+    print(f"  Current serial: {current_serial}")
+    
+    # Calculate new serial
+    new_serial = calculate_new_serial(current_serial)
+    if new_serial is None:
+        return False
+    
+    print(f"  New serial: {new_serial}")
+    
+    if dry_run:
+        print("\n(Dry run - no changes made)")
+        return True
+    
+    # Replace serial in SOA record
+    updated_soa = replace_serial_in_soa(soa_text, current_serial, new_serial)
+    if updated_soa is None:
+        return False
+    
+    # Update content - handle multi-line SOA
+    lines = content.split('\n')
+    
+    # Count how many lines the original SOA spanned
+    soa_line_count = soa_text.count('\n') + 1
+    
+    # Replace the SOA lines with the updated SOA
+    updated_soa_lines = updated_soa.split('\n')
+    lines[soa_start_line:soa_start_line + soa_line_count] = updated_soa_lines
+    
+    new_content = '\n'.join(lines)
+    file_stat = zone_file.stat()
+    
+    # Validate updated zone file
+    print("\nValidating updated zone file...")
+    
+    # Create temporary file for validation
+    temp_file = zone_file.parent / f".{zone_file.name}.{os.getpid()}.validate.tmp"
+    try:
+        _write_file_with_metadata(temp_file, new_content, file_stat)
+        
+        if not validate_zone_file(temp_file, zone_name=zone_name):
+            print("Error: Validation failed, aborting update")
+            temp_file.unlink()
+            return False
+        
+        temp_file.unlink()
+    except Exception as e:
+        print(f"Error: Could not prepare temporary file for validation: {e}")
+        if temp_file.exists():
+            temp_file.unlink()
+        return False
+    
+    print("  Validation passed!")
+    
+    # Create backup (append .bak, don't replace suffix)
+    backup_file = zone_file.parent / f"{zone_file.name}.bak"
+    try:
+        shutil.copy2(zone_file, backup_file)
+        print(f"\nBackup created: {backup_file}")
+    except Exception as e:
+        print(f"Error: Could not create backup: {e}")
+        return False
+    
+    # Write updated zone file
+    try:
+        write_file_preserve_metadata(zone_file, new_content, ref_stat=file_stat)
+        print(f"Zone file updated: {zone_file}")
+        return True
+    except Exception as e:
+        print(f"Error: Could not write zone file: {e}")
+        return False
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: update_zone_serial.py [--zone-name DOMAIN] [--dry-run] <zone_file|pattern...>")
+        print("\nUpdates BIND zone file serial (YYYYMMDD## format)")
+        print("\nOptions:")
+        print("  --zone-name DOMAIN   Override the zone name from $ORIGIN")
+        print("  --dry-run            Show changes without modifying the file")
+        print("\nExamples:")
+        print("  update_zone_serial.py xavamail.net")
+        print("  update_zone_serial.py --dry-run *")
+        print("  update_zone_serial.py --dry-run --zone-name custom.domain *.net")
+        sys.exit(1)
+    
+    zone_name = None
+    dry_run = False
+    zone_patterns = []
+    
+    i = 1
+    while i < len(sys.argv):
+        arg = sys.argv[i]
+        
+        if arg == '--zone-name':
+            if i + 1 < len(sys.argv):
+                zone_name = sys.argv[i + 1]
+                i += 2
+            else:
+                print("Error: --zone-name requires a value")
+                sys.exit(1)
+        elif arg == '--dry-run':
+            dry_run = True
+            i += 1
+        elif arg.startswith('--'):
+            print(f"Error: Unknown option: {arg}")
+            sys.exit(1)
+        else:
+            zone_patterns.append(arg)
+            i += 1
+    
+    if not zone_patterns:
+        print("Error: No zone file or pattern specified")
+        sys.exit(1)
+    
+    # Expand all patterns
+    zone_files = []
+    for pattern in zone_patterns:
+        zone_files.extend(sorted(glob.glob(pattern)))
+    
+    if not zone_files:
+        print(f"Error: No files matching patterns")
+        sys.exit(1)
+    
+    if dry_run:
+        print("Running in DRY RUN mode (no changes will be made)\n")
+    
+    # Process each zone file
+    results = []
+    for zone_file in zone_files:
+        print(f"\n{'='*60}")
+        success = update_zone_serial(zone_file, zone_name=zone_name, dry_run=dry_run)
+        results.append((zone_file, success))
+    
+    # Summary
+    if len(zone_files) > 1:
+        print(f"\n{'='*60}")
+        print(f"Summary: {sum(1 for _, s in results if s)}/{len(zone_files)} zones updated successfully")
+        for zone_file, success in results:
+            status = "✓" if success else "✗"
+            print(f"  {status} {zone_file}")
+    
+    sys.exit(0 if all(s for _, s in results) else 1)
+
+
+if __name__ == '__main__':
+    main()
