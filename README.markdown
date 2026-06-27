@@ -48,12 +48,13 @@ You'll want to change PS1 in `~/.bashrc` (you can edit either `~/.bashrc` or `~/
 
 There's a few special files in the hierarchy.
 
-- **bin/*.bin**: Any `*.bin` file in `bin/` will get symlinked to ~/bin/, which is added to your `$PATH` and be made available everywhere.
 - **system/**: Files that are usually useful to have around on new system installs. Nothing is done automatically, typically those would be installed manually as root.
 - **topic/\*.symlink**: Any files ending in `*.symlink` get symlinked into
   your `$HOME`. This is so you can keep all of those versioned in your dotfiles
   but still keep those autoloaded files in your home directory. These get
-  symlinked in when you run `script/bootstrap`.
+  symlinked in when you run `script/bootstrap`. For example,
+  `base/local/bin/foo.symlink` is linked to `~/.local/bin/foo` (on your
+  `$PATH` via `.profile`).
 - **script/**: Scripts to install the dotfiles. Use `script/bootstrap` upon first use, and again every time a new file gets added. You can run `script/bootstrap` as many times as you want, that shouldn't have any adverse effect: just hit `S` to skip everything that is already set.
 
 ## bugs

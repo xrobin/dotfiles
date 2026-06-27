@@ -195,6 +195,12 @@ install_docopts () {
     if hash docopts 2>/dev/null && docopts -h >/dev/null 2>&1; then
         success 'skipped docopts'
         return
+    else
+        cd $DOTFILES_ROOT/docopts
+	try_exec "pip3 install --user docopt" "error installing docopt python module"
+        try_exec "python3 setup.py build" "error installing docopts"
+        try_install_file $DOTFILES_ROOT/docopts/docopts $HOME/.local/bin/docopts
+	success "docopts installed successfully"
     fi
 
     DOCOPTS_RELEASE=v0.6.4-with-no-mangle-double-dash
@@ -236,6 +242,12 @@ install_trash () {
     if hash trash 2>/dev/null; then
         success 'skipped trash-cli'
         return
+    else
+	try_exec "git clone https://github.com/andreafrancia/trash-cli.git" "error getting trash-cli from GitHub"
+        try_exec "cd trash-cli && python3 setup.py install --user" "error installing trash-cli"
+	try_exec "rm -rf trash-cli" "error cleaning up trash-cli"
+        #try_install_file $DOTFILES_ROOT/docopts/docopts $HOME/.local/bin/docopts
+	success "trash-cli installed successfully"
     fi
 
     if [ "$(uname -s)" = "Darwin" ]; then
