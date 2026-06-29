@@ -377,9 +377,11 @@ def update_zone_serial(zone_file_path, zone_name=None, dry_run=False):
     
     print("  Validation passed!")
     
-    # Create backup (append .bak, don't replace suffix)
-    backup_file = zone_file.parent / f"{zone_file.name}.bak"
+    # Create backup in <dirname>.bak/<zone>.<old_serial>
+    backup_dir = Path(f"{zone_file.parent}.bak")
+    backup_file = backup_dir / f"{zone_file.name}.{current_serial}"
     try:
+        backup_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(zone_file, backup_file)
         print(f"\nBackup created: {backup_file}")
     except Exception as e:
