@@ -279,7 +279,7 @@ def update_zone_serial(zone_file_path, zone_name=None, dry_run=False):
     
     Returns: True if successful, False otherwise
     """
-    zone_file = Path(zone_file_path)
+    zone_file = Path(zone_file_path).resolve()
     
     # Safety checks
     if not zone_file.exists():
@@ -378,7 +378,8 @@ def update_zone_serial(zone_file_path, zone_name=None, dry_run=False):
     print("  Validation passed!")
     
     # Create backup in <dirname>.bak/<zone>.<old_serial>
-    backup_dir = Path(f"{zone_file.parent}.bak")
+    zone_dir = zone_file.parent
+    backup_dir = zone_dir.with_name(f"{zone_dir.name}.bak")
     backup_file = backup_dir / f"{zone_file.name}.{current_serial}"
     try:
         backup_dir.mkdir(parents=True, exist_ok=True)
