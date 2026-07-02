@@ -1,0 +1,338 @@
+#!/usr/bin/env python3
+"""
+Check TLS certificate expiry for one or more hosts and ports.
+
+Designed for daily cron usage. Sends an email alert when any certificate
+expires within the configured threshold (default: 15 days).
+"""
+
+import argparse
+import datetime as dt
+import getpass
+import logging
+import shutil
+import smtplib
+import socket
+import ssl
+import subprocess
+import sys
+from email.message import EmailMessage
+
+
+DEFAULT_PORTS = (443, 587, 993)
+DEFAULT_THRESHOLD_DAYS = 28
+DEFAULT_VERBOSITY = "INFO"
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Check certificate expiry and alert by email."
+    )
+    parser.add_argument(
+        "--host",
+        dest="hosts",
+        action="append",
+        required=True,
+        help="Host to check. Repeat for multiple hosts.",
+    )
+    parser.add_argument(
+        "--ports",
+        nargs="*",
+        type=int,
+        default=DEFAULT_PORTS,
+        help="Ports to check as space-separated values (default: 443 587 993).",
+    )
+    parser.add_argument(
+        "--days",
+        type=int,
+        default=DEFAULT_THRESHOLD_DAYS,
+        help=f"Alert if cert expires in less than DAYS (default: {DEFAULT_THRESHOLD_DAYS}).",
+    )
+    parser.add_argument(
+        "--email-to",
+        required=True,
+        help="Recipient email for alerts.",
+    )
+    parser.add_argument(
+        "--email-from",
+        default=f"cert-monitor@{socket.gethostname()}",
+        help="Sender email for alerts.",
+    )
+    parser.add_argument(
+        "--smtp-server",
+        help="SMTP server hostname. If omitted, local mail command/sendmail is used.",
+    )
+    parser.add_argument(
+        "--smtp-port",
+        type=int,
+        default=25,
+        help="SMTP server port when --smtp-server is used (default: 25).",
+    )
+    parser.add_argument(
+        "--smtp-user",
+        help="SMTP username (optional).",
+    )
+    parser.add_argument(
+        "--smtp-starttls",
+        action="store_true",
+        help="Enable STARTTLS for SMTP connection.",
+    )
+    parser.add_argument(
+        "--verbosity",
+        default=DEFAULT_VERBOSITY,
+        help=f"Logging level (default: {DEFAULT_VERBOSITY}).",
+    )
+
+    args = parser.parse_args()
+    args.ports = tuple(args.ports or DEFAULT_PORTS)
+
+    level = getattr(logging, args.verbosity.upper(), None)
+    if not isinstance(level, int):
+        parser.error(f"invalid verbosity: {args.verbosity!r}")
+    args.verbosity = level
+
+    if args.days < 0:
+        parser.error("--days must be >= 0")
+
+    return args
+
+
+def fetch_cert_expiry(host, port, timeout=10):
+    """
+    Return (not_after_datetime_utc, None) on success, (None, error_msg) on failure.
+    """
+    context = ssl.create_default_context()
+    try:
+        if port == 587:
+            # Submission typically starts plaintext SMTP, then upgrades with STARTTLS.
+            with smtplib.SMTP(host, port, timeout=timeout) as smtp:
+                smtp.ehlo()
+                if not smtp.has_extn("starttls"):
+                    return None, "SMTP STARTTLS is not supported on this endpoint"
+                smtp.starttls(context=context)
+                smtp.ehlo()
+                cert = smtp.sock.getpeercert()
+        else:
+            with socket.create_connection((host, port), timeout=timeout) as sock:
+                with context.wrap_socket(sock, server_hostname=host) as tls_sock:
+                    cert = tls_sock.getpeercert()
+    except Exception as exc:
+        return None, f"connection/TLS failed: {exc}"
+
+    not_after = cert.get("notAfter")
+    if not not_after:
+        return None, "certificate did not include notAfter"
+
+    try:
+        # Example: "Jun 29 12:00:00 2026 GMT"
+        expiry = dt.datetime.strptime(not_after, "%b %d %H:%M:%S %Y %Z")
+        expiry = expiry.replace(tzinfo=dt.timezone.utc)
+    except ValueError as exc:
+        return None, f"failed to parse notAfter '{not_after}': {exc}"
+
+    return expiry, None
+
+
+def send_mail_via_local_command(subject, body, email_to, email_from):
+    mail_cmd = shutil.which("mail") or shutil.which("mailx")
+    if mail_cmd:
+        proc = subprocess.run(
+            [mail_cmd, "-s", subject, "-r", email_from, email_to],
+            input=body.encode("utf-8"),
+            capture_output=True,
+        )
+        if proc.returncode == 0:
+            return True, None
+        stderr = proc.stderr.decode("utf-8", errors="replace").strip()
+        return False, f"{mail_cmd} failed: {stderr or 'unknown error'}"
+
+    sendmail_cmd = shutil.which("sendmail")
+    if sendmail_cmd:
+        msg = (
+            f"From: {email_from}\n"
+            f"To: {email_to}\n"
+            f"Subject: {subject}\n"
+            "\n"
+            f"{body}\n"
+        )
+        proc = subprocess.run(
+            [sendmail_cmd, "-t", "-oi"],
+            input=msg.encode("utf-8"),
+            capture_output=True,
+        )
+        if proc.returncode == 0:
+            return True, None
+        stderr = proc.stderr.decode("utf-8", errors="replace").strip()
+        return False, f"sendmail failed: {stderr or 'unknown error'}"
+
+    return False, "neither mail/mailx nor sendmail found"
+
+
+def send_mail_via_smtp(
+    subject,
+    body,
+    email_to,
+    email_from,
+    smtp_server,
+    smtp_port,
+    smtp_user=None,
+    smtp_password=None,
+    smtp_starttls=False,
+):
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = email_from
+    msg["To"] = email_to
+    msg.set_content(body)
+
+    with smtplib.SMTP(smtp_server, smtp_port, timeout=15) as smtp:
+        smtp.ehlo()
+        use_starttls = smtp_starttls or smtp_port == 587
+        if use_starttls:
+            if not smtp.has_extn("starttls"):
+                raise RuntimeError("SMTP STARTTLS extension not supported by server.")
+            smtp.starttls()
+            smtp.ehlo()
+        if smtp_user:
+            if not smtp.has_extn("auth"):
+                raise RuntimeError(
+                    "SMTP AUTH extension not supported by server. Omit --smtp-user."
+                )
+            smtp.login(smtp_user, smtp_password or "")
+        smtp.send_message(msg)
+
+
+def evaluate_check(host, port, expiry, err, threshold_days, now=None):
+    endpoint = f"{host}:{port}"
+    if err:
+        return {"endpoint": endpoint, "status": "error", "error": err}
+
+    now = now or dt.datetime.now(dt.timezone.utc)
+    days_left = (expiry - now).total_seconds() / 86400
+    status = "expiring" if days_left < threshold_days else "ok"
+    return {
+        "endpoint": endpoint,
+        "status": status,
+        "expiry": expiry,
+        "days_left": days_left,
+    }
+
+
+def log_evaluation(logger, evaluation):
+    endpoint = evaluation["endpoint"]
+    if evaluation["status"] == "error":
+        logger.error("%s: ERROR (%s)", endpoint, evaluation["error"])
+    elif evaluation["status"] == "expiring":
+        logger.error(
+            "%s: ERROR (expires %s, %.1f days left)",
+            endpoint,
+            evaluation["expiry"].date().isoformat(),
+            evaluation["days_left"],
+        )
+    else:
+        logger.info(
+            "%s: OK (expires %s)",
+            endpoint,
+            evaluation["expiry"].date().isoformat(),
+        )
+
+
+def build_alert(evaluations):
+    alert_lines = []
+    warn_count = 0
+
+    for evaluation in evaluations:
+        if evaluation["status"] == "error":
+            warn_count += 1
+            alert_lines.append(
+                f"- {evaluation['endpoint']} ERROR: {evaluation['error']}"
+            )
+        elif evaluation["status"] == "expiring":
+            warn_count += 1
+            alert_lines.append(
+                f"- {evaluation['endpoint']} expires at "
+                f"{evaluation['expiry'].isoformat()} ({evaluation['days_left']:.1f} days left)"
+            )
+
+    return warn_count, "\n".join(alert_lines)
+
+
+def get_smtp_password(smtp_user):
+    if not smtp_user:
+        return None
+
+    if not sys.stdin.isatty():
+        raise RuntimeError(
+            "SMTP password is required for --smtp-user, but no TTY is available to prompt."
+        )
+
+    password = getpass.getpass(f"SMTP password for {smtp_user}: ")
+    if not password:
+        raise RuntimeError("SMTP password prompt returned an empty value.")
+    return password
+
+
+def main():
+    args = parse_args()
+    logging.basicConfig(level=args.verbosity, format="%(message)s", stream=sys.stderr)
+    logger = logging.getLogger(__name__)
+
+    now = dt.datetime.now(dt.timezone.utc)
+    evaluations = []
+    for host in args.hosts:
+        for port in args.ports:
+            expiry, err = fetch_cert_expiry(host, port)
+            evaluation = evaluate_check(host, port, expiry, err, args.days, now=now)
+            evaluations.append(evaluation)
+            log_evaluation(logger, evaluation)
+
+    warn_count, details = build_alert(evaluations)
+
+    if warn_count == 0:
+        print("OK: no certificates under threshold and no connection errors.")
+        return 0
+
+    subject = f"[ALERT] TLS certificates need attention ({warn_count} issue(s))"
+    body = (
+        f"Certificate check threshold: < {args.days} days\n"
+        f"Checked hosts: {', '.join(args.hosts)}\n"
+        f"Checked ports: {', '.join(str(p) for p in args.ports)}\n\n"
+        "Issues:\n"
+        f"{details}\n"
+    )
+
+    try:
+        if args.smtp_server:
+            smtp_password = get_smtp_password(args.smtp_user)
+            send_mail_via_smtp(
+                subject=subject,
+                body=body,
+                email_to=args.email_to,
+                email_from=args.email_from,
+                smtp_server=args.smtp_server,
+                smtp_port=args.smtp_port,
+                smtp_user=args.smtp_user,
+                smtp_password=smtp_password,
+                smtp_starttls=args.smtp_starttls,
+            )
+        else:
+            ok, err = send_mail_via_local_command(
+                subject, body, args.email_to, args.email_from
+            )
+            if not ok:
+                print(f"ERROR: failed to send alert email: {err}", file=sys.stderr)
+                print("\nAlert body follows:\n")
+                print(body)
+                return 2
+    except Exception as exc:
+        print(f"ERROR: failed to send alert email: {exc}", file=sys.stderr)
+        print("\nAlert body follows:\n")
+        print(body)
+        return 2
+
+    print(f"ALERT sent to {args.email_to} ({warn_count} issue(s)).")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
