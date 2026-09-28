@@ -2,13 +2,13 @@
 # In short: environment variables go to .profile, all shell-specific stuff in .bashrc.
 
 # We need set_launchctl_env
-if [[ ! `type -t set_launchctl_env` ]]
+if ! command -v set_launchctl_env >/dev/null 2>&1
 then
 	. ~/.profile.functions
 fi
 
 
-if [ `uname` == Darwin ]; then
+if [ `uname` = Darwin ]; then
 	export PATH=/opt/local/libexec/gnubin/:/opt/local/bin:/opt/local/sbin:/opt/local/lib/postgresql93/bin/:$HOME/Library/Python/3.9/bin/:$PATH
 	# use coreutil tools by default
 	export PATH="/usr/local/opt/grep/libexec/gnubin:/usr/local/opt/findutils/libexec/gnubin:/usr/local/opt/gnu-tar/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/gnu-indent/libexec/gnubin:/usr/local/opt/gnu-getopt/bin:/usr/local/opt/coreutils/libexec/gnubin/:$PATH"

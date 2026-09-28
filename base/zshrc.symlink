@@ -1,0 +1,74 @@
+# ~/.zshrc: read by every interactive zsh shell.
+# Environment variables are already loaded from ~/.profile via ~/.zshenv.
+# This is the zsh counterpart of base/bashrc.symlink: shell-specific,
+# interactive-only setup (prompt, history, completion, aliases).
+
+setopt HIST_IGNORE_DUPS
+setopt APPEND_HISTORY
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+HISTSIZE=20000
+SAVEHIST=1000000
+HISTFILE=~/.zsh_history
+
+autoload -Uz compinit && compinit
+
+# make faster by parallelizing, like base/bashrc.symlink
+if hash nproc 2>/dev/null; then
+	export MAKEFLAGS=-j$(( $(nproc) / 2 ))
+elif hash sysctl 2>/dev/null; then
+	export MAKEFLAGS=-j$(( $(sysctl -n hw.ncpu) / 2 ))
+fi
+
+# Enable gpg asking for password over ssh/screen sessions, like base/bashrc.symlink
+export GPG_TTY=$(tty)
+
+if [ -f ~/.aliases ]; then
+	. ~/.aliases
+fi
+
+if [ -f ~/.aliases.local ]; then
+	. ~/.aliases.local
+fi
+
+# Bring in the zsh-specific topic files (previously unused, see system/*.zsh)
+for f in ~/.dotfiles/system/env.zsh ~/.dotfiles/system/grc.zsh ~/.dotfiles/system/keys.zsh; do
+	[ -f "$f" ] && . "$f"
+done
+if [ "$(uname)" = "Darwin" ] && [ -f ~/.dotfiles/system/aliases.zsh ]; then
+	. ~/.dotfiles/system/aliases.zsh
+fi
+
+# Prompt: git branch + colored exit status, mirroring base/bashrc.symlink's PS1
+parse_git_branch() {
+	git_branch=$(git branch 2>/dev/null | grep "*" | sed 's/*\s\+//')
+	if [ -n "$git_branch" ]; then
+		echo " [$git_branch]"
+	fi
+}
+
+setopt PROMPT_SUBST
+precmd() {
+	local exit=$?
+	if [ "$exit" -eq 0 ]; then
+		PROMPT_STATUS="%F{white}(${exit})%f"
+	else
+		PROMPT_STATUS="%F{white}(%F{red}${exit}%F{white})%f"
+	fi
+}
+
+if [[ $UID == 0 ]]; then
+	PROMPT='${PROMPT_STATUS} %F{red}%n@%m:%~$(parse_git_branch)#%f '
+elif [[ -n "$SSH_CONNECTION" ]]; then
+	PROMPT='${PROMPT_STATUS} %F{green}%n%f@%F{magenta}%m%f:%F{blue}%~%f%F{yellow}$(parse_git_branch)%f%# '
+else
+	PROMPT='${PROMPT_STATUS} %F{blue}%n%f@%F{blue}%m%f:%F{green}%~%f%F{yellow}$(parse_git_branch)%f%# '
+fi
+
+# Source additional local files, like base/bashrc.symlink does for ~/.bashrc.*
+for f in ~/.zshrc.*(N); do
+	if [[ "$f" == *.backup ]]; then
+		continue
+	fi
+	. "$f"
+done

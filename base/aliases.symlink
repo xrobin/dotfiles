@@ -7,7 +7,7 @@ alias lal='ls -Al --si'
 alias df='df --si'
 
 # Some shortcuts to Mac apps for the command line:
-if [ `uname` == Darwin ]; then
+if [ `uname` = Darwin ]; then
 	alias TextMate='open -a TextMate.app'
 fi
 
@@ -25,12 +25,14 @@ alias rm='rm --preserve-root -I'
 alias sudo='sudo '
 
 # Python virtual environments activation
-for version in ~/python/[23].[0-9]
-do
-	bn=$(basename "$version")
-	activate=${version}/bin/activate
-	test -e "$activate" && alias python${bn}-activate=". $activate"
-done
+if [ -d ~/python ]; then
+	for version in ~/python/[23].[0-9]
+	do
+		bn=$(basename "$version")
+		activate=${version}/bin/activate
+		test -e "$activate" && alias python${bn}-activate=". $activate"
+	done
+fi
 
 if [ -f ~/.aliases.local ]; then
     . ~/.aliases.local

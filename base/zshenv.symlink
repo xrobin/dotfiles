@@ -1,0 +1,7 @@
+# ~/.zshenv: read by every zsh invocation (interactive, scripts, GUI-launched apps).
+# Environment variables live in ~/.profile so they're shared with bash,
+# see base/profile.symlink and http://superuser.com/questions/789448/choosing-between-bashrc-profile-bash-profile-etc
+
+if [ -f ~/.profile ]; then
+	[ "$_READ_PROFILE" = "$$" ] || . ~/.profile
+fi
