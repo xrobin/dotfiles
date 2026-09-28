@@ -190,10 +190,19 @@ docopts_release_os_arch () {
     esac
     ARCH=$(uname -m)
     case $ARCH in
-        x86_64) DOCOPTS_ARCH_BIN=amd64 ;;
-        i*86)   DOCOPTS_ARCH_BIN=386 ;;
-        arm*)   DOCOPTS_ARCH_BIN=arm ;;
-        *)      return 1 ;;
+        x86_64)          DOCOPTS_ARCH_BIN=amd64 ;;
+        i*86)            DOCOPTS_ARCH_BIN=386 ;;
+        arm64|aarch64)
+            # No native arm64 build is published for darwin; the amd64 build
+            # runs fine there under Rosetta 2. Linux does ship an arm build.
+            if [ "$DOCOPTS_OS_URL" = "darwin" ]; then
+                DOCOPTS_ARCH_BIN=amd64
+            else
+                DOCOPTS_ARCH_BIN=arm
+            fi
+            ;;
+        arm*)            DOCOPTS_ARCH_BIN=arm ;;
+        *)               return 1 ;;
     esac
     return 0
 }
@@ -228,7 +237,7 @@ install_docopts () {
     try_exec "wget -q -O \"$DOCOPTS_DIR/sha256sum.txt\" \"$DOCOPTS_BASE_URL/$DOCOPTS_RELEASE/sha256sum.txt\"" "error downloading docopts sha256sum"
 
     if [ "$(uname -s)" = "Darwin" ]; then
-        sha256sum() { openssl sha256 "$2" | awk '{print $2}'; }
+        sha256sum() { shasum -a 256 "$@"; }
     fi
     (
         cd "$DOCOPTS_DIR"
