@@ -1,0 +1,26 @@
+# macOS-only aliases (BSD userland), sourced from ~/.aliases
+# See base/aliases.linux.symlink for the GNU/Linux equivalents
+
+# BSD du has no --si/--max-depth, BSD df uses -H for powers of 1000
+alias ssdu='sudo du -h -d 1'
+alias ll='ls -lh'
+alias lal='ls -Alh'
+alias df='df -H'
+
+# Colored ls (BSD)
+alias ls='ls -G'
+
+# Safer rm: BSD rm has -I but no --preserve-root (/ is always protected)
+alias rm='rm -I'
+
+# Play a "Ta Daaa" sound. Useful to type just after long commands
+alias alert='(afplay /System/Library/Sounds/Glass.aiff &)'
+
+# srm was removed from macOS, use GNU shred if coreutils is installed
+if ! hash srm 2>/dev/null && hash gshred 2>/dev/null
+then
+	alias srm='gshred -u'
+fi
+
+# Some shortcuts to Mac apps for the command line:
+alias TextMate='open -a TextMate.app'

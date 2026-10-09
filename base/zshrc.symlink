@@ -13,6 +13,15 @@ HISTFILE=~/.zsh_history
 
 autoload -Uz compinit && compinit
 
+# Home/End/Delete: zsh only binds the ^[OH/^[OF forms by default, while bash
+# (readline) also handles the ^[[H/^[[F sequences that iTerm2 sends
+bindkey -e
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey '^[[1~' beginning-of-line
+bindkey '^[[4~' end-of-line
+bindkey '^[[3~' delete-char
+
 # make faster by parallelizing, like base/bashrc.symlink
 if hash nproc 2>/dev/null; then
 	export MAKEFLAGS=-j$(( $(nproc) / 2 ))

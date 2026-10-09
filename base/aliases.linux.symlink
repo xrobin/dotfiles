@@ -1,0 +1,21 @@
+# Linux-only aliases (GNU coreutils), sourced from ~/.aliases
+# See base/aliases.mac.symlink for the BSD/macOS equivalents
+
+alias ssdu='sudo du --si --max-depth=1'
+alias ll='ls -l --si'
+alias lal='ls -Al --si'
+alias df='df --si'
+
+# Safer rm
+alias rm='rm --preserve-root -I'
+
+# Play a "Ta Daaa" sound. Useful to type just after long commands
+if [ -f ~/share/sounds/owin31-tada.wav ]; then
+	alias alert="(paplay ~/share/sounds/owin31-tada.wav &)"
+fi
+
+# shred vs srm
+if ! hash srm 2>/dev/null
+then
+	alias srm='shred -u'
+fi
