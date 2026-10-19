@@ -2,7 +2,7 @@
         protocol = git
 [user]
         name = Xavier Robin
-        email = xavalias-github@xavier.robin.name
+        email = xavalias-github@xavamail.net
 [credential]
 	helper = cache
         # helper = GIT_CREDENTIAL_HELPER
