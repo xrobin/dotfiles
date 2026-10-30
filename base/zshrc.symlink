@@ -69,11 +69,11 @@ precmd() {
 }
 
 if [[ $UID == 0 ]]; then
-	PROMPT='${PROMPT_STATUS} %F{red}%n@%m:%~$(parse_git_branch)#%f '
+	PROMPT='${PROMPT_STATUS} %B%F{red}%n@%m:%~$(parse_git_branch)#%f%b '
 elif [[ -n "$SSH_CONNECTION" ]]; then
-	PROMPT='${PROMPT_STATUS} %F{green}%n%f@%F{magenta}%m%f:%F{blue}%~%f%F{yellow}$(parse_git_branch)%f%# '
+	PROMPT='${PROMPT_STATUS} %B%F{green}%n%F{black}@%F{magenta}%m%F{black}:%F{blue}%~%b%F{yellow}$(parse_git_branch)%f%# '
 else
-	PROMPT='${PROMPT_STATUS} %F{blue}%n%f@%F{blue}%m%f:%F{green}%~%f%F{yellow}$(parse_git_branch)%f%# '
+	PROMPT='${PROMPT_STATUS} %B%F{blue}%n%b%F{white}@%B%F{blue}%m%b%F{white}:%F{green}%~%F{yellow}$(parse_git_branch)%F{white}%# %f'
 fi
 
 # Source additional local files, like base/bashrc.symlink does for ~/.bashrc.*
