@@ -12,53 +12,16 @@ local({
 	options(repos=r)
 })
    
-# Set a custom library if R was compiled with ICC
-# Problem is: how to find this out?
-# Cheap solution: look at R_HOME
-if (Sys.getenv("R_HOME") == paste0("/opt/R/", R.version$major, ".", R.version$minor, "-intel/lib64/R")) {
-# Heuristic: there is a non-empty INTEL_LICENSE_FILE variable if that's the case
-#if (Sys.getenv("INTEL_LICENSE_FILE") != "") {
-	.libPaths(stringr::str_replace(.libPaths()[1], "/?$", "-intel"))
-}
-
 if (interactive()) {
-	# options(papersize="a4")
-	# options(editor="notepad")
-	# options(pager="internal")
-
-	# options("pROCProgress"=list(name="tk")
-	# note: tk tends to block emacs, so use text instead
-	# options("pROCProgress"=list(
-	#	name="text",
-	#	style=3,
-	#	char="=",
-	#	width=80))
-
-	# to prefer Compiled HTML help
-	#  options(chmhelp=TRUE)
-	
-	# to prefer HTML help
-	# options(htmlhelp=TRUE)
-	
-	# Attach the packages earlier than defaults, so that what we load later has the priority!
-#	options("defaultPackages" = c(c(getOption("defaultPackages"), "tools", "fortunes", "pROC", "stringr", "Cairo")))
 	
 	# attach R/functions.R in a new environment called UserFunctions
 	sys.source("~/.Rfunctions.R", env=attach(NULL, name="UserFunctions"), keep.source=TRUE)
 	# To refresh the functions if .Rfunctions.R is edited while a session is running, 
 	# run sys.source("~/.Rfunctions.R", env=as.environment("UserFunctions"), keep.source=TRUE)
 	
-	# set a CRAN mirror
-# Don't set r.forge, it's a mess of unstable builds! 
-#	local({r <- getOption("repos")
-#	      #r["CRAN"] <- "http://mirrors.dotsrc.org/cran/"
-#	      # CRAN is already selected - add R-forge in interactive sessions
-#	      r["r.forge"] <- "http://r-forge.r-project.org"
-#	      options(repos=r)})
-	
 	# Don't ask to save workspace on quit...
-	q <- function(save="no", ...)
-		base::quit(save, ...)
+	#q <- function(save="no", ...)
+	#	base::quit(save, ...)
 	
 	# do not print too many lines at once
 	options("max.print" = 1000)
@@ -69,8 +32,8 @@ if (interactive()) {
 	
 	# setup printers
 	#options(printer="HP LaserJet 2300 Series PS (NB 9036)")
-	options(color.printer="Canon-iR-ADV-C5045")
-	options(printers=suppressWarnings(system("which lpstat > /dev/null 2>&1 && lpstat -a 2>/dev/null | grep -o '^[^ ]\\+'", intern=T)))
+	#options(color.printer="Canon-iR-ADV-C5045")
+	#options(printers=suppressWarnings(system("which lpstat > /dev/null 2>&1 && lpstat -a 2>/dev/null | grep -o '^[^ ]\\+'", intern=T)))
 	#options(device=function(...) {
 	#	if (length(system("ps -ef|grep compiz", TRUE)) == 4)
 	#		CairoX11(...)
@@ -78,38 +41,38 @@ if (interactive()) {
 	#		X11(...)
 	#})
 	
-	if (require(Cairo)) {
-		CairoFonts(
-			regular="Fontin Sans Rg:style=Regular",
-			bold="Fontin Sans Rg:style=Bold",
-			italic="Fontin Sans Rg:style=Italic",
-			bolditalic="Fontin Sans Rg:style=Bold Italic,BoldItalic",
-			symbol="Symbol"
-		)
-	}
+	#if (require(Cairo)) {
+	#	CairoFonts(
+	#		regular="Fontin Sans Rg:style=Regular",
+	#		bold="Fontin Sans Rg:style=Bold",
+	#		italic="Fontin Sans Rg:style=Italic",
+	#		bolditalic="Fontin Sans Rg:style=Bold Italic,BoldItalic",
+	#		symbol="Symbol"
+	#	)
+	#}
 	
 	# custom colors
-	options(colors=list(
-		ruby_dark = "#850000",
-		emerald_dark = "#008500",
-		sapphire_dark = "#003c85",
-		amethyst_dark = "#570085",
-		orange_dark = "#855600",
-		citrine_dark = "#855e00",
-		ruby = "#b51b1b",
-		emerald = "#1bb51b",
-		sapphire = "#1b60b5",
-		amethyst = "#811bb5",
-		citrine = "#b5871b",
-		ruby_bg = "#f2e6e6",
-		emerald_bg = "#e6f2e6",
-		sapphire_bg = "#e6ecf2",
-		amethyst_bg = "#eee6f2",
-		citrine_bg = "#f2efe6"
-	#	sapphire_bg = rgb(219, 233, 229, maxColorValue=255),
-	#	emerald_bg = rgb(224, 234, 224, maxColorValue=255),
-	#	ruby_bg = rgb(239, 229, 229, maxColorValue=255)
-	))
+	#options(colors=list(
+	#	ruby_dark = "#850000",
+	#	emerald_dark = "#008500",
+	#	sapphire_dark = "#003c85",
+	#	amethyst_dark = "#570085",
+	#	orange_dark = "#855600",
+	#	citrine_dark = "#855e00",
+	#	ruby = "#b51b1b",
+	#	emerald = "#1bb51b",
+	#	sapphire = "#1b60b5",
+	#	amethyst = "#811bb5",
+	#	citrine = "#b5871b",
+	#	ruby_bg = "#f2e6e6",
+	#	emerald_bg = "#e6f2e6",
+	#	sapphire_bg = "#e6ecf2",
+	#	amethyst_bg = "#eee6f2",
+	#	citrine_bg = "#f2efe6"
+	##	sapphire_bg = rgb(219, 233, 229, maxColorValue=255),
+	##	emerald_bg = rgb(224, 234, 224, maxColorValue=255),
+	##	ruby_bg = rgb(239, 229, 229, maxColorValue=255)
+	#))
 	
 	# Use UTF-8 as default encoding.
 	#options("encoding"="UTF-8") # this messes the reading of many files!!!
@@ -123,8 +86,8 @@ if (interactive()) {
 	# Help
 	
 	# fortunes
-	library(fortunes)
-	print(fortune())
+	#library(fortunes)
+	#print(fortune())
 	
 	# nicer errors
 	#options(error=stack.trace) # stack.trace is a function in "UserFunctions" env (see MesDocs/R/functions.R).
@@ -133,18 +96,18 @@ if (interactive()) {
 	# Here is the right place to setup non-interactive tracebacks
 	#options(error = function() {traceback(3); q("no", 1)})
 	#options(error = quote(dump.frames(to.file = TRUE)))
-	options(error = function() {
-		traceback(3)
-		dump.frames(to.file = TRUE)
-		q("no", 1)
-	})
+	#options(error = function() {
+	#	traceback(3)
+	#	dump.frames(to.file = TRUE)
+	#	q("no", 1)
+	#})
 }
 
 # Java parameter: prevents unwanted exiting upon Control-C (see https://www.rforge.net/bugzilla/show_bug.cgi?id=237)
-options(java.parameters="-Xrs")
+# options(java.parameters="-Xrs")
 
 # Don't import table with strings converted as factor – most of the time it's wrong!!
-options(stringsAsFactors = FALSE)
+#options(stringsAsFactors = FALSE)
 
 # look for a startup file in the current directory
 if (file.exists(".First.R")) {
