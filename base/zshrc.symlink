@@ -21,6 +21,8 @@ bindkey '^[[F' end-of-line
 bindkey '^[[1~' beginning-of-line
 bindkey '^[[4~' end-of-line
 bindkey '^[[3~' delete-char
+bindkey '^[[3;2~' kill-word   # Shift+Delete
+bindkey '^[[3;5~' kill-word   # Ctrl+Delete
 
 # make faster by parallelizing, like base/bashrc.symlink
 if hash nproc 2>/dev/null; then
