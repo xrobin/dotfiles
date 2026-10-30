@@ -11,9 +11,6 @@ esac
 # Safer mv asks before overwriting
 alias mv='mv -i'
 
-# Makes make faster - but only when called directly as it may have side effects...
-alias make='make -j 4'
-
 # Make aliases work with sudo
 # http://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
 alias sudo='sudo '
