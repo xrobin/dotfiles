@@ -23,4 +23,15 @@ activity "Activity in %t(%n)"
 shelltitle "shell"
 shell -$SHELL
 
+# screen 4.x does not understand 24-bit colours: it parses ESC[38;2;R;G;Bm as
+# separate attributes (2 = dim, 7 = reverse...) that then leak onto following text.
+# Applications like claude code appear broken.
+# Don't advertise truecolor to programs inside screen so they fall back to 256 colours.
+unsetenv COLORTERM
+
+# screen 4.x maps SGR 3 (italic) to "standout"; render standout as italic in the outer terminal
+termcapinfo xterm* 'so=\E[3m:se=\E[23m'
+# screen's own messages use standout by default; keep them in reverse video
+sorendition =r
+
 source $HOME/.screenrc.local
