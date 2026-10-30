@@ -78,6 +78,7 @@ def parse_args():
         help="Enable STARTTLS for SMTP connection.",
     )
     parser.add_argument(
+        "-v",
         "--verbosity",
         default=DEFAULT_VERBOSITY,
         help=f"Logging level (default: {DEFAULT_VERBOSITY}).",
@@ -289,7 +290,7 @@ def main():
     warn_count, details = build_alert(evaluations)
 
     if warn_count == 0:
-        print("OK: no certificates under threshold and no connection errors.")
+        logger.info("OK: no certificates under threshold and no connection errors.")
         return 0
 
     subject = f"[ALERT] TLS certificates need attention ({warn_count} issue(s))"
