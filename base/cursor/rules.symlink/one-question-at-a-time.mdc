@@ -1,0 +1,32 @@
+---
+description: Ask open questions one at a time and keep track of the rest
+alwaysApply: true
+---
+
+# One question at a time
+
+## Don't bundle
+
+When multiple decisions, questions, or todo items need the user's input, present **one at a
+time** and wait for an explicit answer before moving to the next — even if they seem related.
+Do not combine several open questions into a single message or `AskQuestion` call.
+
+This matters most when one question needs follow-up discussion. Keep the remaining
+questions in the open set, but don't mention or remind the user about them while the
+current one is being discussed — that's distracting. Once the current question and its
+follow-ups are fully resolved, bring up the next one from the open set. Don't let pending
+questions get lost, and don't let them interrupt.
+
+If you catch yourself about to write "3 things to resolve:" followed by a list, stop and ask
+just the first one.
+
+## Don't lose open questions
+
+Keep track of every open question, not just the one currently being discussed — in the
+todo tool or just in context, whichever fits. When the current question is resolved, check
+what's still open and continue with the next one. New questions that come up along the way
+get added to the open set rather than asked immediately.
+
+- If asked what's still open, list every pending question in full.
+- When the user says they're wrapping up, write the open questions (and decisions made so
+  far) to a file on disk, since chat context doesn't survive across sessions.
